@@ -23,5 +23,5 @@ Nota: caso quiser mover o pacote python mover em conjunto com os arquivos `libfe
 
 
 ### Agradecimentos
-@tcanabrava pelo apoio na geração e entendimento de recursos do cmake
+[https://github.com/tcanabrava](@tcanabrava) pelo apoio na geração e entendimento de recursos do cmake
 
