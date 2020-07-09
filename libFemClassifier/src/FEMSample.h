@@ -8,14 +8,14 @@
 
 typedef struct femsample
 {
-  int class;   
+  int class;
   int number_of_features;
   double dist;
   double weigth;
   double value;
   double *features;
   double *probability;
-  int label;  
+  int label;
   double additional_parameters[MAX_ADDITIONAL_PARAMETERS];
 }  FEMSample;
 
