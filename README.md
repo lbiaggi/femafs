@@ -20,3 +20,8 @@ Procedimento Atual:
 
 Nota: caso quiser mover o pacote python mover em conjunto com os arquivos `libfem_classifier.so` e `_pyFEMClassifier.so`
 
+
+
+### Agradecimentos
+@tcanabrava pelo apoio na geração e entendimento de recursos do cmake
+
