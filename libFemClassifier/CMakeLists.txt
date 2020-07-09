@@ -22,6 +22,7 @@ target_include_directories(
     PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/src>
     $<INSTALL_INTERFACE:include>
+    # ${OpenCV_LIBS}
 )
 
 add_library(FEMClassifier ALIAS fem_classifier)
