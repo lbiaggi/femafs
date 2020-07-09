@@ -1,4 +1,11 @@
 cmake_minimum_required(VERSION 3.11)
 project(libfema)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_INSTALL_LIBDIR})
 find_package( OpenCV REQUIRED )
+
+# find_package(SWIG REQUIRED)
+# set(CMAKE_SWIG_FLAGS)
+# include(UseSWIG)
+# find_package(PythonLibs)
+# include_directories(${PYTHON INCLUDE_DIRS})
 add_subdirectory(libFemClassifier)
