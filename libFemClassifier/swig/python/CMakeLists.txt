@@ -23,11 +23,11 @@ set_property(TARGET pyFEMClassifier PROPERTY SWIG_USE_TARGET_INCLUDE_DIRECTORIES
 target_link_libraries(
     pyFEMClassifier
     ${PYTHON_LIBRARIES}
+    FEMClassifier
 )
 
 target_include_directories(pyFEMClassifier
 PRIVATE
-    ../include
     ${PROJECT_SOURCE_DIR}/libFemClassifier/src
     ${PYTHON_INCLUDE_DIRS}
 )
