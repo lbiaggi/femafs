@@ -15,6 +15,7 @@ PRIVATE
     src/FEMimages.c
     src/FEMClassify.c
     src/FEMBasis.c
+    src/FEMFeatureSelection.c
 )
 
 target_include_directories(

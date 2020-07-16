@@ -3,7 +3,7 @@
 ### binding fema para python TODO
 - [X] Cmake e binding para python
 - [ ] OPF no cmake
-- [ ] Inserir Feature Selection no projeto
+- [O] Inserir Feature Selection no projeto <- Em andamento
 - [ ] Criar comandos de instalação do projeto
 - [ ] Criar comandos de instalação do binding de python
 

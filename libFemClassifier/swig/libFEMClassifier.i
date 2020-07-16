@@ -13,3 +13,4 @@
 %include "FEMimages.i"
 %include "FEMSample.i"
 %include "FEMUtils.i"
+%include "FEMFeatureSelection.i"
