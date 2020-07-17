@@ -3,9 +3,9 @@
 ### binding fema para python TODO
 - [X] Cmake e binding para python
 - [ ] OPF no cmake
-- [X] Inserir Feature Selection no projeto <- Em andamento
-- [ ] Criar comandos de instalação do projeto
-- [ ] Criar comandos de instalação do binding de python
+- [X] Inserir Feature Selection no projeto
+- [X] Criar comandos de instalação do projeto
+- [X] Criar comandos de instalação do binding de python
 
 Pré-requisitos:
 1. Compilar gnu ou clang  7+ (provavelmente 8+)
