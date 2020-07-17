@@ -10,15 +10,16 @@
 Pré-requisitos:
 1. Compilar gnu ou clang  7+ (provavelmente 8+)
 2. CMake >= 3.14
+3. Swig >= 4.0.1
+4. Python >= 3.6 [Opcional]
 
 Procedimento Atual:
 
 1. `git clone git@github.com:lbiaggi/fema_cmake.git`
 2. `cmake -DBUILD_PYTHON=1 -Bbuild`
 3. `cd build && make`
-4. `cp libFemClassifier/swig/python/libFEMClassifier.py .`
 
-Nota: caso quiser mover o pacote python mover em conjunto com os arquivos `libfem_classifier.so` e `_pyFEMClassifier.so`
+Nota: caso quiser mover o pacote python mover em conjunto com os arquivos `libFEMClassifier.py` `libfem_classifier.so`,`_pyFEMClassifier.so `
 
 
 
