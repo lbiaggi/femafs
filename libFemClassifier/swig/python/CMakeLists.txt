@@ -23,7 +23,6 @@ set_property(TARGET pyFEMClassifier PROPERTY SWIG_USE_TARGET_INCLUDE_DIRECTORIES
 target_link_libraries(
     pyFEMClassifier
     ${PYTHON_LIBRARIES}
-    FEMClassifier
 )
 
 target_include_directories(pyFEMClassifier
@@ -35,7 +34,7 @@ PRIVATE
 
 set(PYTHON_INSTALL_FILES
     ${CMAKE_CURRENT_BINARY_DIR}/libFEMClassifier.py
-        ${CMAKE_CURRENT_BINARY_DIR}/libFEMClassifier.so)
+    )
 
 # Configure setup.py and copy to output directory
 set(SETUP_PY_IN ${CMAKE_CURRENT_SOURCE_DIR}/setup.py.in)
@@ -48,6 +47,7 @@ configure_file(${SETUP_PY_IN} ${SETUP_PY_OUT})
 #        COMPONENT swig-python)
 
 # Install target to call setup.py
-add_custom_target(install-python
-        DEPENDS libFEMClassifier
+add_custom_target(install-python ALL
+    DEPENDS pyFEMClassifier
         COMMAND python ${SETUP_PY_OUT} install)
+
