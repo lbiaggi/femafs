@@ -14,10 +14,10 @@ double probabilityByClassFeature(FEMDataset* dataset, int class, int feat_id,
         } else {
             dataset->samples[i].value = 0.0;
         }
-        dataset->samples[i].weigth
-            = FEMbasisF((min - dataset->samples[i].features[feat_id])
-                    / (min - max + 0.0000000000000001),
-                value, additional_parameters);
+        fprintf(stderr, "feat_id: %d, sample: %d, result from basis: %f\n", feat_id, i, FEMbasisF((min - dataset->samples[i].features[feat_id]) / (min - max + 0.0000000000000001), value, additional_parameters));
+        dataset->samples[i].weigth = FEMbasisF((min - dataset->samples[i].features[feat_id]) / (min - max + 0.0000000000000001), value, additional_parameters);
+
+
         sum += dataset->samples[i].weigth;
     }
 
@@ -79,7 +79,7 @@ void createDatasetFeaturesSelectedOPFFormat(FEMDataset* dataset_train,
         fprintf(train, "\n%d %d", i + 1, dataset_train->samples[i].class);
         for (j = 0; j < k; j++) {
             fprintf(
-                train, " %f", dataset_train->samples[i].features[feat_id[j]]);
+                train, " %.17lf", dataset_train->samples[i].features[feat_id[j]]);
         }
     }
 
@@ -89,7 +89,7 @@ void createDatasetFeaturesSelectedOPFFormat(FEMDataset* dataset_train,
         fprintf(test, "\n%d %d", i + 1, dataset_test->samples[i].class);
         for (j = 0; j < k; j++) {
             fprintf(
-                test, " %f", dataset_test->samples[i].features[feat_id[j]]);
+                test, " %.17lf", dataset_test->samples[i].features[feat_id[j]]);
         }
     }
 }
@@ -167,11 +167,9 @@ double FeatureSelectionVector(FEMDataset* dataset_train,
 
     bubleSortF(
         prob_feat_discrepancy, feat_id, dataset_train->number_of_features);
-    /*for(i = 0; i < dataset_train->number_of_features; i++)
-    {
-        fprintf(stderr,"\n[BEST %d] => feat:%d \t
-    score:%.2lf!",i,feat_id[i],prob_feat_discrepancy[i]);
-    }*/
+
+    for(i = 0; i < dataset_train->number_of_features; i++)
+        fprintf(stderr,"\n[BEST %d] => feat:%d \t score:%.2lf!",i,feat_id[i],prob_feat_discrepancy[i]);
 
     createDatasetFeaturesSelectedOPFFormat(
         dataset_train, dataset_test, feat_id, perc, out_train, out_test);
@@ -278,23 +276,23 @@ double distanceFEM_feature(double a, double b)
 }
 
 double FEMShepardMotherFunction_feature(
-    double a, double b, double additional_parameters[])
+    double a, double b, double value, double additional_parameters[])
 {
-    return (1.0
+    return value - (1.0
         / pow(pow(distanceFEM_feature(a, b) + 0.00000001, 1.0),
             (double)additional_parameters[0]));
 }
 
 double FEMGaussianNormalizedMotherFunction_feature(
-    double a, double b, double additional_parameters[])
+    double a, double b, double value,  double additional_parameters[])
 {
-    double r = distanceFEM_feature(a, b) / additional_parameters[0];
+    double r = value - ( distanceFEM_feature(a, b) / additional_parameters[0]);
     return 2.0 * r * r * r - 3.0 * r * r + 1;
 }
 
 double FEMRadialNormalizedMotherFunction_feature(
-    double a, double b, double additional_parameters[])
+    double a, double b, double value, double additional_parameters[])
 {
-    double r = distanceFEM_feature(a, b) / additional_parameters[0];
+    double r = value - (distanceFEM_feature(a, b) / additional_parameters[0]);
     return exp(-0.5 * r * r);
 }
