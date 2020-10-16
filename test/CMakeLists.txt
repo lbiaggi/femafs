@@ -22,3 +22,5 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/data/kdd_train_minmax10.fem
     ${CMAKE_CURRENT_BINARY_DIR}/kdd_train_minmax10.fem COPYONLY)
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/data/kdd_test_minmax10.fem
     ${CMAKE_CURRENT_BINARY_DIR}/kdd_test_minmax10.fem COPYONLY)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/runfs.sh
+    ${CMAKE_CURRENT_BINARY_DIR}/runfs.sh)
