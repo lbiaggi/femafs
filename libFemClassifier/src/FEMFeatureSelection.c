@@ -20,12 +20,10 @@ double probabilityByClassFeature(FEMDataset* dataset, int class, int feat_id,
     }
 
     // normalize the basis
-    for (i = 0; i < dataset->number_of_samples; i++)
+    for (i = 0; i < dataset->number_of_samples; i++){
         dataset->samples[i].weigth /= (sum + 0.0000000000000001);
-
-    for( i = 0; i< dataset->number_of_samples; i++)
         probability += dataset->samples[i].value * dataset->samples[i].weigth;
-
+    }
     return probability;
 }
 
@@ -105,6 +103,8 @@ double FeatureSelectionVector(FEMDataset* dataset_train,
 {
     int i, j, c1, c2, k;
     double valuei, valuej, probi, probj;
+    //   I, K , J
+    int feat, sample, class; // J
 
     double *prob_feat_discrepancy = (double*)malloc(sizeof(double) * dataset_train->number_of_features);
     double *max = (double*)malloc(sizeof(double) * dataset_train->number_of_features);
@@ -120,27 +120,15 @@ double FeatureSelectionVector(FEMDataset* dataset_train,
         exit(1);
     }
 
-    for (i = 0; i < dataset_train->number_of_features; i++) {
-
-        // set zero in the probability and set the class id
-        prob_feat_discrepancy[i] = 0.0;
-        // define min of each feature
-        getMinMaxFeature(dataset_train, i, &min[i], &max[i]);
-        // define the "id" of each feature? to same id? <- redudant.
-        feat_id[i] = i;
-        values[i] = (double**)malloc(sizeof(double*) * n_samples);
-        for (k = 0; k < n_samples; k++)
-            values[i][k] = (double*)malloc( sizeof(double) * dataset_train->number_of_classes);
-    }
-
-    int feat; // i
-    int sample;//  K
-    int class; // J
-    for (feat = 0; feat < dataset_train->number_of_features; feat++) {
+    for(feat = 0; feat < dataset_train->number_of_features; feat++) {
+        prob_feat_discrepancy[feat] = 0.0;
+        getMinMaxFeature(dataset_train, feat, &min[feat], &max[feat]);
+        feat_id[feat] = feat;
+        values[feat] = (double**)malloc(sizeof(double*) * n_samples);
         for (sample = 0; sample < n_samples; sample++) {
+            values[feat][sample] = (double*)malloc( sizeof(double) * dataset_train->number_of_classes);
             for (class = 0; class < dataset_train->number_of_classes; class++) {
                 double value = min[feat] + sample * ((max[feat] - min[feat]) / n_samples);
-
                 values[feat][sample][class] = probabilityByClassFeature(dataset_train, class + 1, feat, value, min[feat], max[feat], additional_parameters, FEMbasisF);
             }
         }
