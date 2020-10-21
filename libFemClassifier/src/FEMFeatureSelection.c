@@ -7,6 +7,7 @@ double probabilityByClassFeature(FEMDataset* dataset, int class, int feat_id,
 {
     int i = 0;
     double sum = 0.0;
+    double probability = 0.0;
 
     for (i = 0; i < dataset->number_of_samples; i++) {
         if (dataset->samples[i].class == class) {
@@ -14,16 +15,18 @@ double probabilityByClassFeature(FEMDataset* dataset, int class, int feat_id,
         } else {
             dataset->samples[i].value = 0.0;
         }
-        dataset->samples[i].weigth
-            = FEMbasisF((min - dataset->samples[i].features[feat_id])
-                    / (min - max + 0.0000000000000001),
-                value, additional_parameters);
+        dataset->samples[i].weigth = FEMbasisF((min - dataset->samples[i].features[feat_id]) / (min - max + 0.0000000000000001), value, additional_parameters);
         sum += dataset->samples[i].weigth;
     }
 
     // normalize the basis
     for (i = 0; i < dataset->number_of_samples; i++)
         dataset->samples[i].weigth /= (sum + 0.0000000000000001);
+
+    for( i = 0; i< dataset->number_of_samples; i++)
+        probability += dataset->samples[i].value * dataset->samples[i].weigth;
+
+    return probability;
 }
 
 void getMinMaxFeature(
@@ -34,8 +37,10 @@ void getMinMaxFeature(
     *min = *max = dataset->samples[0].features[feat_id];
 
     for (i = 1; i < dataset->number_of_samples; i++) {
+
         if (dataset->samples[i].features[feat_id] > *max)
             *max = dataset->samples[i].features[feat_id];
+
         if (dataset->samples[i].features[feat_id] < *min)
             *min = dataset->samples[i].features[feat_id];
     }
@@ -101,17 +106,12 @@ double FeatureSelectionVector(FEMDataset* dataset_train,
     int i, j, c1, c2, k;
     double valuei, valuej, probi, probj;
 
-    double *prob_feat_discrepancy
-        = (double*)malloc(sizeof(double) * dataset_train->number_of_features),
-        *max
-        = (double*)malloc(sizeof(double) * dataset_train->number_of_features),
-        *min
-        = (double*)malloc(sizeof(double) * dataset_train->number_of_features),
-        ***values = (double***)malloc(
-            sizeof(double**) * dataset_train->number_of_features);
+    double *prob_feat_discrepancy = (double*)malloc(sizeof(double) * dataset_train->number_of_features);
+    double *max = (double*)malloc(sizeof(double) * dataset_train->number_of_features);
+    double *min = (double*)malloc(sizeof(double) * dataset_train->number_of_features);
+    double ***values = (double***)malloc( sizeof(double**) * dataset_train->number_of_features);
 
-    int* feat_id
-        = (int*)malloc(sizeof(int) * dataset_train->number_of_features);
+    int* feat_id = (int*)malloc(sizeof(int) * dataset_train->number_of_features);
 
     if (prob_feat_discrepancy == NULL || feat_id == NULL) {
         fprintf(stderr,
@@ -120,31 +120,34 @@ double FeatureSelectionVector(FEMDataset* dataset_train,
         exit(1);
     }
 
-    // set zero in the probability and set the class id
     for (i = 0; i < dataset_train->number_of_features; i++) {
+
+        // set zero in the probability and set the class id
         prob_feat_discrepancy[i] = 0.0;
+        // define min of each feature
         getMinMaxFeature(dataset_train, i, &min[i], &max[i]);
+        // define the "id" of each feature? to same id? <- redudant.
         feat_id[i] = i;
         values[i] = (double**)malloc(sizeof(double*) * n_samples);
         for (k = 0; k < n_samples; k++)
-            values[i][k] = (double*)malloc(
-                sizeof(double) * dataset_train->number_of_classes);
+            values[i][k] = (double*)malloc( sizeof(double) * dataset_train->number_of_classes);
     }
 
-    for (i = 0; i < dataset_train->number_of_features; i++) {
-        for (k = 0; k < n_samples; k++) {
-            for (j = 0; j < dataset_train->number_of_classes; j++) {
-                double value = min[i] + k * ((max[i] - min[i]) / n_samples);
-                values[i][k][j]
-                    = probabilityByClassFeature(dataset_train, j + 1, i, value,
-                        min[i], max[i], additional_parameters, FEMbasisF);
+    int feat; // i
+    int sample;//  K
+    int class; // J
+    for (feat = 0; feat < dataset_train->number_of_features; feat++) {
+        for (sample = 0; sample < n_samples; sample++) {
+            for (class = 0; class < dataset_train->number_of_classes; class++) {
+                double value = min[feat] + sample * ((max[feat] - min[feat]) / n_samples);
+
+                values[feat][sample][class] = probabilityByClassFeature(dataset_train, class + 1, feat, value, min[feat], max[feat], additional_parameters, FEMbasisF);
             }
         }
     }
 
     for (i = 0; i < dataset_train->number_of_features; i++) // loop feature out
     {
-        // fprintf(stdout,"\n%d of %d",i,dataset_train->number_of_features);
 
         for (j = i + 1; j < dataset_train->number_of_features;
              j++) // loop feature in
@@ -157,7 +160,6 @@ double FeatureSelectionVector(FEMDataset* dataset_train,
                 {
                     for (k = 0; k < n_samples; k++) {
                         double mult = values[i][k][c1] * values[j][k][c2];
-                        fprintf(stdout, "Mult: %lf\n", mult);
                         prob_feat_discrepancy[i] += mult;
                         prob_feat_discrepancy[j] += mult;
                     }
@@ -166,13 +168,10 @@ double FeatureSelectionVector(FEMDataset* dataset_train,
         }
     }
 
-    bubleSortF(
-        prob_feat_discrepancy, feat_id, dataset_train->number_of_features);
-    for(i = 0; i < dataset_train->number_of_features; i++)
-    {
-        fprintf(stderr,"\n[BEST %d] => feat:%d \t score:%.2lf!",i,feat_id[i],prob_feat_discrepancy[i]);
+    bubleSortF( prob_feat_discrepancy, feat_id, dataset_train->number_of_features);
+    for(i = 0; i < dataset_train->number_of_features; i++)   {
+        fprintf(stderr,"\n[BEST %d] => feat:%d score:%.17lf!",i,feat_id[i],prob_feat_discrepancy[i]);
     }
-
     createDatasetFeaturesSelectedOPFFormat(
         dataset_train, dataset_test, feat_id, perc, out_train, out_test);
 }
@@ -280,9 +279,7 @@ double distanceFEM_feature(double a, double b)
 double FEMShepardMotherFunction_feature(
     double a, double b, double additional_parameters[])
 {
-    return (1.0
-        / pow(pow(distanceFEM_feature(a, b) + 0.00000001, 1.0),
-            (double)additional_parameters[0]));
+    return (1.0 / pow(pow(distanceFEM_feature(a, b) + 0.00000001, 1.0), (double)additional_parameters[0]));
 }
 
 double FEMGaussianNormalizedMotherFunction_feature(
