@@ -19,7 +19,7 @@ double probabilityByClassFeature(FEMDataset* dataset, int class, int feat_id,
         sum += dataset->samples[i].weigth;
     }
 
-    // normalize the basis
+    // normalize the basis if necessary
     for (i = 0; i < dataset->number_of_samples; i++){
         dataset->samples[i].weigth /= (sum + 0.0000000000000001);
         probability += dataset->samples[i].value * dataset->samples[i].weigth;
