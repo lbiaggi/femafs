@@ -82,7 +82,7 @@ add_custom_target(tornontor
 
 #CLEAN OPF RUN
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/run_opf_nsl_kdd.sh ${CMAKE_CURRENT_BINARY_DIR}/run_opf_nsl_kdd.sh)
-configure_file(${CMAKE_CURRENT_SOURCE_DIR}/run_opf_tor_nontor${CMAKE_CURRENT_BINARY_DIR}/run_opf_tor_nontor.sh)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/run_opf_tor_nontor.sh ${CMAKE_CURRENT_BINARY_DIR}/run_opf_tor_nontor.sh)
 
 add_custom_target(opf
     COMMAND ${CMAKE_CURRENT_BINARY_DIR}/run_opf_tor_nontor.sh
