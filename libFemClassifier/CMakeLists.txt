@@ -6,6 +6,8 @@ add_library(
     SHARED
     "")
 
+find_package(OpenMP REQUIRED)
+
 target_sources(
     fem_classifier
 PRIVATE
@@ -17,6 +19,10 @@ PRIVATE
     src/FEMBasis.c
     src/FEMFeatureSelection.c
 )
+
+if(OpenMP_C_FOUND)
+    target_link_libraries(fem_classifier PUBLIC OpenMP::OpenMP_C)
+endif()
 
 target_include_directories(
     fem_classifier
