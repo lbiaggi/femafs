@@ -1,24 +1,68 @@
+#ifdef  _OPENMP
+    #include <omp.h>
+#else
+    #define omp_get_num_threads() 1
+#endif
+
 #include "FEMFeatureSelection.h"
 #include <string.h>
+
+struct parallel_job_details {
+    int start;
+    int end;
+    double result;
+};
 
 double probabilityByClassFeature(FEMDataset* dataset, int class, int feat_id,
     double value, double min, double max, double additional_parameters[],
     motherFunctionF* FEMbasisF)
 {
 
-    int i = 0;
+    int task_size =  0;
+    int i,j,k = 0;
+    int n_cores = omp_get_max_threads();
     double sum = 0.0;
     double probability = 0.0;
 
-    for (i = 0; i < dataset->number_of_samples; i++) {
-        if (dataset->samples[i].class == class) {
-            dataset->samples[i].value = 1.0;
-        } else {
-            dataset->samples[i].value = 0.0;
-        }
-        dataset->samples[i].weigth = FEMbasisF((min - dataset->samples[i].features[feat_id]) / (min - max + 0.0000000000000001), value, additional_parameters);
-        sum += dataset->samples[i].weigth;
+ /* O objetivo é pegar o número de processador dividir o array de vetores
+     * em partes quase iguais (o ultimo fará um job a mais e somar tudo  de
+     * volta para sum;
+     */
+
+
+    task_size = dataset->number_of_samples % n_cores;
+    struct parallel_job_details task_sum[n_cores];
+
+    for(i=0; i < n_cores; i++)
+    {
+        j+=task_size;
+        task_sum[i].start = k;
+        task_sum[i].end = j;
+        task_sum[i].result = 0.0;
+        k=j;
+        /* fprintf(stdout, "%d Task start at: %d end at: %d\n", */
+        /*         i, task_sum[i].start, task_sum[i].end ); */
+
     }
+    if(dataset->number_of_samples % n_cores  == 1) {
+        task_sum[n_cores-1].end++;
+    }
+
+    #pragma omp parallel for shared(dataset)
+    for(i=0; i<n_cores; i++) {
+        task_sum[i].result = parallel_basis(dataset, class,
+                feat_id, value, min, max, additional_parameters,
+                FEMbasisF, task_sum[i].start, task_sum[i].end);
+        fprintf(stdout, "Finished Task %d\n", i+1);
+    }
+
+    #pragma omp barrier
+    {
+    for(i=0; i<n_cores; i++)
+        sum+=task_sum[i].result;
+    }
+
+
 
     for (i = 0; i < dataset->number_of_samples; i++){
         dataset->samples[i].weigth /= (sum + 0.0000000000000001);
@@ -26,6 +70,23 @@ double probabilityByClassFeature(FEMDataset* dataset, int class, int feat_id,
     }
 
     return probability;
+}
+double parallel_basis(FEMDataset* dataset, int class, int feat_id,
+    double value, double min, double max, double additional_parameters[],
+    motherFunctionF* FEMbasisF, int start, int stop)
+{
+    double local_sum = 0.0;
+    int i=0;
+    for (i = start; i < stop; i++) {
+        if (dataset->samples[i].class == class) {
+            dataset->samples[i].value = 1.0;
+        } else {
+            dataset->samples[i].value = 0.0;
+        }
+        dataset->samples[i].weigth = FEMbasisF((min - dataset->samples[i].features[feat_id]) / (min - max + 0.0000000000000001), value, additional_parameters);
+        local_sum += dataset->samples[i].weigth;
+    }
+    return local_sum;
 }
 
 void getMinMaxFeature(
@@ -98,7 +159,7 @@ void createDatasetFeaturesSelectedOPFFormat(FEMDataset* dataset_train,
     }
 }
 
-double FeatureSelectionVector(FEMDataset* dataset_train,
+void FeatureSelectionVector(FEMDataset* dataset_train,
     FEMDataset* dataset_test, int n_samples, double additional_parameters[],
     motherFunctionF* FEMbasisF, double perc, char out_train[], char out_test[])
 {
