@@ -169,17 +169,15 @@ void FeatureSelectionVector(FEMDataset* dataset_train,
                 double reg_sum = 0.0;
 
                 {
-                #pragma omp parallel for
+                #pragma omp parallel for reduction(+:reg_sum)
                     for(int job=0;job<n_cores;job++)
                     {
-                    #pragma omp atomic
                     reg_sum+= parallel_basis(dataset_train, class + 1, feat, value, min[feat], max[feat],
                             additional_parameters, FEMbasisF,
                             task_sum[job].start,
                             task_sum[job].end
                             );
                     }
-                #pragma omp barrier
                 {
                     values[feat][sample][class] = probabilityByClassFeature(dataset_train, reg_sum);
                 }
