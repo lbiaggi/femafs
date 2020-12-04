@@ -1,16 +1,13 @@
-#ifdef  _OPENMP
-    #include <omp.h>
-#else
-    #define omp_get_num_threads() 1
-#endif
+#include <string.h>
+#include <omp.h>
 
 #include "FEMFeatureSelection.h"
-#include <string.h>
 
 struct parallel_job_details {
     int start;
     int end;
     double result;
+    FEMDataset dataset;
 };
 
 double probabilityByClassFeature(FEMDataset* dataset, int class, int feat_id,
@@ -30,37 +27,52 @@ double probabilityByClassFeature(FEMDataset* dataset, int class, int feat_id,
      */
 
 
-    task_size = dataset->number_of_samples % n_cores;
-    struct parallel_job_details task_sum[n_cores];
 
+    task_size = dataset->number_of_samples / n_cores;
+
+    struct parallel_job_details task_sum[n_cores];
+    j=task_size;
     for(i=0; i < n_cores; i++)
     {
-        j+=task_size;
         task_sum[i].start = k;
         task_sum[i].end = j;
         task_sum[i].result = 0.0;
         k=j;
-        /* fprintf(stdout, "%d Task start at: %d end at: %d\n", */
-        /*         i, task_sum[i].start, task_sum[i].end ); */
-
+        j+=task_size;
     }
-    if(dataset->number_of_samples % n_cores  == 1) {
+
+    if(dataset->number_of_samples % 2  == 1) {
         task_sum[n_cores-1].end++;
     }
 
-    #pragma omp parallel for shared(dataset)
-    for(i=0; i<n_cores; i++) {
-        task_sum[i].result = parallel_basis(dataset, class,
-                feat_id, value, min, max, additional_parameters,
-                FEMbasisF, task_sum[i].start, task_sum[i].end);
-        fprintf(stdout, "Finished Task %d\n", i+1);
+    for(i=0; i < n_cores; i++)
+    {
+        int copysize = task_sum[i].end - task_sum[i].start;
+        alloc_FEMDataset(&task_sum[i].dataset,
+                dataset->number_of_classes,
+                copysize,
+                dataset->number_of_features);
+
+        for(j=0; j<copysize;j++) {
+            for(k=0; k < task_sum[i].dataset.number_of_features; k++)
+                task_sum[i].dataset.samples[j].features[k] = dataset->samples[ task_sum[i].start + j].features[k];
+        }
+
     }
 
-    #pragma omp barrier
     {
+    #pragma omp parallel for
+    for(i=0; i<n_cores; i++) {
+        task_sum[i].result = parallel_basis(&task_sum[i].dataset, class,
+                feat_id, value, min, max, additional_parameters,
+                FEMbasisF);
+
+        dealloc_FEMDataset(&task_sum[i].dataset);
+        }
+    }
+
     for(i=0; i<n_cores; i++)
         sum+=task_sum[i].result;
-    }
 
 
 
@@ -71,13 +83,14 @@ double probabilityByClassFeature(FEMDataset* dataset, int class, int feat_id,
 
     return probability;
 }
+
 double parallel_basis(FEMDataset* dataset, int class, int feat_id,
     double value, double min, double max, double additional_parameters[],
-    motherFunctionF* FEMbasisF, int start, int stop)
+    motherFunctionF* FEMbasisF)
 {
     double local_sum = 0.0;
     int i=0;
-    for (i = start; i < stop; i++) {
+    for (i = 0; i < dataset->number_of_samples; i++) {
         if (dataset->samples[i].class == class) {
             dataset->samples[i].value = 1.0;
         } else {
