@@ -3,94 +3,25 @@
 #include <time.h>
 #include "FEMFeatureSelection.h"
 
-struct parallel_job_details {
-    int start;
-    int end;
-    double result;
-    FEMDataset dataset;
-};
-
-double probabilityByClassFeature(FEMDataset* dataset, int class, int feat_id,
-    double value, double min, double max, double additional_parameters[],
-    motherFunctionF* FEMbasisF)
+double probabilityByClassFeature(FEMDataset* dataset, double regularize_sum)
 {
-
-    int task_size =  0;
-    int i,j,k = 0;
-    int n_cores = omp_get_max_threads();
-    double sum = 0.0;
     double probability = 0.0;
-
- /* O objetivo é pegar o número de processador dividir o array de vetores
-     * em partes quase iguais (o ultimo fará um job a mais e somar tudo  de
-     * volta para sum;
-     */
-
-
-
-    task_size = dataset->number_of_samples / n_cores;
-
-    struct parallel_job_details task_sum[n_cores];
-    j=task_size;
-    for(i=0; i < n_cores; i++)
+    int i;
+    for (i = 0; i < dataset->number_of_samples; i++)
     {
-        task_sum[i].start = k;
-        task_sum[i].end = j;
-        task_sum[i].result = 0.0;
-        k=j;
-        j+=task_size;
-    }
-
-    if(dataset->number_of_samples % 2  == 1) {
-        task_sum[n_cores-1].end++;
-    }
-
-    for(i=0; i < n_cores; i++)
-    {
-        int copysize = task_sum[i].end - task_sum[i].start;
-        alloc_FEMDataset(&task_sum[i].dataset,
-                dataset->number_of_classes,
-                copysize,
-                dataset->number_of_features);
-
-        for(j=0; j<copysize;j++) {
-            for(k=0; k < task_sum[i].dataset.number_of_features; k++)
-                task_sum[i].dataset.samples[j].features[k] = dataset->samples[ task_sum[i].start + j].features[k];
-        }
-
-    }
-
-    {
-    #pragma omp parallel for
-    for(i=0; i<n_cores; i++) {
-        task_sum[i].result = parallel_basis(&task_sum[i].dataset, class,
-                feat_id, value, min, max, additional_parameters,
-                FEMbasisF);
-
-        dealloc_FEMDataset(&task_sum[i].dataset);
-        }
-    }
-
-    for(i=0; i<n_cores; i++)
-        sum+=task_sum[i].result;
-
-
-
-    for (i = 0; i < dataset->number_of_samples; i++){
-        dataset->samples[i].weigth /= (sum + 0.0000000000000001);
+        dataset->samples[i].weigth /= (regularize_sum + 0.0000000000000001);
         probability += dataset->samples[i].value * dataset->samples[i].weigth;
     }
-
     return probability;
 }
 
 double parallel_basis(FEMDataset* dataset, int class, int feat_id,
     double value, double min, double max, double additional_parameters[],
-    motherFunctionF* FEMbasisF)
+    motherFunctionF* FEMbasisF, int task_start, int task_stop)
 {
     double local_sum = 0.0;
     int i=0;
-    for (i = 0; i < dataset->number_of_samples; i++) {
+    for (i = task_start; i < task_stop; i++) {
         if (dataset->samples[i].class == class) {
             dataset->samples[i].value = 1.0;
         } else {
@@ -172,6 +103,29 @@ void createDatasetFeaturesSelectedOPFFormat(FEMDataset* dataset_train,
     }
 }
 
+void define_parallels_task_size(struct parallel_job_details* jobs, int samples_size, int n_cores)
+{
+    int task_size = samples_size / n_cores;
+    int end=task_size;
+    int start = 0;
+    int core = 0;
+    for(core=0; core < n_cores; core++)
+    {
+        jobs[core].start = start;
+        jobs[core].end = end;
+        jobs[core].result = 0.0;
+        jobs[core].size = task_size;
+        start=end;
+        end+=task_size;
+    }
+
+    if(samples_size % 2  == 1)
+    {
+        jobs[n_cores-1].end++;
+        jobs[n_cores-1].size++;
+    }
+}
+
 void FeatureSelectionVector(FEMDataset* dataset_train,
     FEMDataset* dataset_test, int n_samples, double additional_parameters[],
     motherFunctionF* FEMbasisF, double perc, char out_train[], char out_test[])
@@ -180,6 +134,10 @@ void FeatureSelectionVector(FEMDataset* dataset_train,
     double valuei, valuej, probi, probj;
     //   I, K , J
     int feat, sample, class; // J
+
+    int n_cores = omp_get_max_threads();
+    struct parallel_job_details *task_sum = (struct parallel_job_details*) malloc(sizeof(struct parallel_job_details) * n_cores);
+    define_parallels_task_size(task_sum, dataset_train->number_of_samples, n_cores);
 
     double *prob_feat_discrepancy = (double*)malloc(sizeof(double) * dataset_train->number_of_features);
     double *max = (double*)malloc(sizeof(double) * dataset_train->number_of_features);
@@ -195,9 +153,9 @@ void FeatureSelectionVector(FEMDataset* dataset_train,
         exit(1);
     }
 
-    clock_t begin, end;
-    double time_spent;
     for(feat = 0; feat < dataset_train->number_of_features; feat++) {
+        clock_t begin, end;
+        double time_spent=0;
         begin = clock();
         prob_feat_discrepancy[feat] = 0.0;
         getMinMaxFeature(dataset_train, feat, &min[feat], &max[feat]);
@@ -208,12 +166,29 @@ void FeatureSelectionVector(FEMDataset* dataset_train,
             values[feat][sample] = (double*)malloc( sizeof(double) * dataset_train->number_of_classes);
             for (class = 0; class < dataset_train->number_of_classes; class++) {
                 double value = min[feat] + sample * ((max[feat] - min[feat]) / n_samples);
-                values[feat][sample][class] = probabilityByClassFeature(dataset_train, class + 1, feat, value, min[feat], max[feat], additional_parameters, FEMbasisF);
+                double reg_sum = 0.0;
+
+                {
+                #pragma omp parallel for
+                    for(int job=0;job<n_cores;job++)
+                    {
+                    #pragma omp atomic
+                    reg_sum+= parallel_basis(dataset_train, class + 1, feat, value, min[feat], max[feat],
+                            additional_parameters, FEMbasisF,
+                            task_sum[job].start,
+                            task_sum[job].end
+                            );
+                    }
+                #pragma omp barrier
+                {
+                    values[feat][sample][class] = probabilityByClassFeature(dataset_train, reg_sum);
+                }
+                }
             }
-        }
         end = clock();
-        time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
-        fprintf(stdout, "Processado Samples: %d\n, Tempo estimado gasto: %f segundos", sample, time_spent);
+        time_spent= (double)(end - begin) / CLOCKS_PER_SEC;
+        }
+        fprintf(stdout, "Processado Samples: %d, Tempo estimado gasto: %f segundos\n", sample, time_spent);
     }
 
     for (i = 0; i < dataset_train->number_of_features; i++) // loop feature out
