@@ -1,6 +1,6 @@
 #include <string.h>
 #include <omp.h>
-
+#include <time.h>
 #include "FEMFeatureSelection.h"
 
 struct parallel_job_details {
