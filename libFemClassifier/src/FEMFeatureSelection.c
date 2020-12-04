@@ -1,5 +1,6 @@
 #include "FEMFeatureSelection.h"
 #include <string.h>
+#include <time.h>
 
 double probabilityByClassFeature(FEMDataset* dataset, int class, int feat_id,
     double value, double min, double max, double additional_parameters[],
