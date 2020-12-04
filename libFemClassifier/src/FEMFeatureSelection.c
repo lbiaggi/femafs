@@ -195,11 +195,15 @@ void FeatureSelectionVector(FEMDataset* dataset_train,
         exit(1);
     }
 
+    clock_t begin, end;
+    double time_spent;
     for(feat = 0; feat < dataset_train->number_of_features; feat++) {
+        begin = clock();
         prob_feat_discrepancy[feat] = 0.0;
         getMinMaxFeature(dataset_train, feat, &min[feat], &max[feat]);
         feat_id[feat] = feat;
         values[feat] = (double**)malloc(sizeof(double*) * n_samples);
+        fprintf(stdout, "Processando Feature: %d\n", feat);
         for (sample = 0; sample < n_samples; sample++) {
             values[feat][sample] = (double*)malloc( sizeof(double) * dataset_train->number_of_classes);
             for (class = 0; class < dataset_train->number_of_classes; class++) {
@@ -207,6 +211,9 @@ void FeatureSelectionVector(FEMDataset* dataset_train,
                 values[feat][sample][class] = probabilityByClassFeature(dataset_train, class + 1, feat, value, min[feat], max[feat], additional_parameters, FEMbasisF);
             }
         }
+        end = clock();
+        time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+        fprintf(stdout, "Processado Samples: %d\n, Tempo estimado gasto: %f segundos", sample, time_spent);
     }
 
     for (i = 0; i < dataset_train->number_of_features; i++) // loop feature out
