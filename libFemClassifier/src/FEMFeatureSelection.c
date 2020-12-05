@@ -1,5 +1,6 @@
 #include "FEMFeatureSelection.h"
 #include <string.h>
+#include <omp.h>
 #include <time.h>
 
 double probabilityByClassFeature(FEMDataset* dataset, int class, int feat_id,
@@ -12,11 +13,6 @@ double probabilityByClassFeature(FEMDataset* dataset, int class, int feat_id,
     double probability = 0.0;
 
     for (i = 0; i < dataset->number_of_samples; i++) {
-        if (dataset->samples[i].class == class) {
-            dataset->samples[i].value = 1.0;
-        } else {
-            dataset->samples[i].value = 0.0;
-        }
         dataset->samples[i].weigth = FEMbasisF((min - dataset->samples[i].features[feat_id]) / (min - max + 0.0000000000000001), value, additional_parameters);
         sum += dataset->samples[i].weigth;
     }
@@ -104,8 +100,6 @@ double FeatureSelectionVector(FEMDataset* dataset_train,
     motherFunctionF* FEMbasisF, double perc, char out_train[], char out_test[])
 {
     int i, j, c1, c2, k;
-    double valuei, valuej, probi, probj;
-    //   I, K , J
     int feat, sample, class; // J
 
     double *prob_feat_discrepancy = (double*)malloc(sizeof(double) * dataset_train->number_of_features);
@@ -124,25 +118,32 @@ double FeatureSelectionVector(FEMDataset* dataset_train,
 
     clock_t begin, end;
     double time_spent;
-    for(feat = 0; feat < dataset_train->number_of_features; feat++) {
-        begin = clock();
-        prob_feat_discrepancy[feat] = 0.0;
-        getMinMaxFeature(dataset_train, feat, &min[feat], &max[feat]);
-        feat_id[feat] = feat;
+
+    for(feat = 0; feat < dataset_train->number_of_features; feat++){
         values[feat] = (double**)malloc(sizeof(double*) * n_samples);
-        fprintf(stdout, "Processando Feature: %d\n", feat);
         for (sample = 0; sample < n_samples; sample++) {
             values[feat][sample] = (double*)malloc( sizeof(double) * dataset_train->number_of_classes);
-            for (class = 0; class < dataset_train->number_of_classes; class++) {
-                double value = min[feat] + sample * ((max[feat] - min[feat]) / n_samples);
-                values[feat][sample][class] = probabilityByClassFeature(dataset_train, class + 1, feat, value, min[feat], max[feat], additional_parameters, FEMbasisF);
-            }
         }
-        end = clock();
-        time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
-        fprintf(stdout, "Processado Samples: %d\n, Tempo estimado gasto: %f segundos", sample, time_spent);
     }
 
+    #pragma omp parallel
+    {
+        for(feat = 0; feat < dataset_train->number_of_features; feat++) {
+            prob_feat_discrepancy[feat] = 0.0;
+            getMinMaxFeature(dataset_train, feat, &min[feat], &max[feat]);
+            feat_id[feat] = feat;
+            for (sample = 0; sample < n_samples; sample++) {
+
+                #pragma omp single
+                for (class = 0; class < dataset_train->number_of_classes; class++) {
+                    double value = min[feat] + sample * ((max[feat] - min[feat]) / n_samples);
+                    #pragma omp task
+                    values[feat][sample][class] = probabilityByClassFeature(dataset_train, class + 1, feat, value, min[feat], max[feat], additional_parameters, FEMbasisF);
+                }
+
+            }
+        }
+    }
     for (i = 0; i < dataset_train->number_of_features; i++) // loop feature out
     {
 
