@@ -19,6 +19,12 @@ double FEMGaussianNormalizedMotherFunction_feature(
 double FEMRadialNormalizedMotherFunction_feature(
     double a, double value,double additional_parameters[]);
 
+struct FEMa_local_sample_info
+{
+    double value;
+    double weigth;
+};
+
 typedef double motherFunctionF(double a, double value, double additional_parameters[]);
 
 double probabilityByClassFeature(FEMDataset *dataset, int class, int feat_id, double value, double min, double max, double additional_parameters[], motherFunctionF *FEMbasisF);
