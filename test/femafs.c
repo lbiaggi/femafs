@@ -30,7 +30,7 @@ int main(int argc, char** argv)
     FEMDataset dataset_train;
     FEMDataset dataset_test;
 
-    clock_t begin, end;
+    struct timespec  begin, end;
     double time_spent;
     int basis_id = atoi(argv[1]);
     motherFunctionF* basis = NULL;
@@ -74,11 +74,11 @@ int main(int argc, char** argv)
 
     char out_train_name[] = "train.feature.out";
     char out_test_name[] = "test.feature.out";
-    begin = clock();
-
+    clock_gettime(CLOCK_MONOTONIC, &begin);
     FeatureSelectionVector(&dataset_train, &dataset_test, dataset_train.number_of_samples, additional_parameters, basis, atof(argv[2]),out_train_name, out_test_name);
-    end = clock();
+    clock_gettime(CLOCK_MONOTONIC, &end);
     /* Dif(&dataset_train, &dataset_test); */
-    time_spent = (double)(end - begin) / CLOCKS_PER_SEC;
+    time_spent = (end.tv_sec - begin.tv_sec);
+    time_spent += (end.tv_nsec - begin.tv_nsec)/ 1000000000.0;
     fprintf(stderr, "\n Estimation time: %f seconds\n", time_spent);
    }

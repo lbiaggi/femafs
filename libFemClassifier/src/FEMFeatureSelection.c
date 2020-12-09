@@ -13,7 +13,6 @@ double probabilityByClassFeature(FEMDataset* dataset, int class, int feat_id,
     double probability = 0.0;
     int SIZE = dataset->number_of_samples;
     struct FEMa_local_sample_info local_data[SIZE];
-    int id = omp_get_thread_num();
 
     for (i = 0; i < dataset->number_of_samples; i++) {
         if (dataset->samples[i].class == class) {
@@ -24,6 +23,7 @@ double probabilityByClassFeature(FEMDataset* dataset, int class, int feat_id,
         local_data[i].weigth = FEMbasisF((min - dataset->samples[i].features[feat_id]) / (min - max + 0.0000000000000001), value, additional_parameters);
         sum += local_data[i].weigth;
     }
+
     for (i = 0; i < SIZE; i++){
         local_data[i].weigth /= (sum + 0.0000000000000001);
         probability += local_data[i].value * local_data[i].weigth;
@@ -123,9 +123,6 @@ double FeatureSelectionVector(FEMDataset* dataset_train,
         exit(1);
     }
 
-    /* clock_t begin, end; */
-    /* double time_spent; */
-
     for(feat = 0; feat < dataset_train->number_of_features; feat++){
         values[feat] = (double**)malloc(sizeof(double*) * n_samples);
         for (sample = 0; sample < n_samples; sample++) {
@@ -133,26 +130,26 @@ double FeatureSelectionVector(FEMDataset* dataset_train,
         }
         feat_id[feat] = feat;
         prob_feat_discrepancy[feat] = 0.0;
+        getMinMaxFeature(dataset_train, feat, &min[feat], &max[feat]);
     }
 
-    #pragma omp parallel shared(prob_feat_discrepancy, feat_id, values, min, max)
+    #pragma omp parallel
     {
-        int id = omp_get_thread_num();
-        int nthreads = omp_get_num_threads();
-
-        #pragma for ordered
-        for(feat = id; feat < dataset_train->number_of_features; feat=feat+nthreads) {
-            getMinMaxFeature(dataset_train, feat, &min[feat], &max[feat]);
-            for (sample = 0; sample < n_samples; sample++) {
-                for (class = 0; class < dataset_train->number_of_classes; class++) { double value = min[feat] + sample * ((max[feat] - min[feat]) / n_samples);
-                    #pragma critical
-                    values[feat][sample][class] = probabilityByClassFeature(dataset_train, class + 1, feat, value, min[feat], max[feat], additional_parameters, FEMbasisF);
-                    /* fprintf(stdout, "Feat: %d, Sample: %d, class %d, values na posição: %f \n", feat, sample, class, values[feat][sample][class] ); */
+        int feat_n = dataset_train->number_of_features;
+        int samples_n = n_samples;
+        int class_n = dataset_train->number_of_classes;
+        #pragma omp for ordered collapse(3)
+            for(feat = 0; feat < feat_n; feat++) {
+                for (sample = 0; sample < samples_n; sample++) {
+                    for (class = 0; class < class_n; class++) {
+                        double value = min[feat] + sample * ((max[feat] - min[feat]) / n_samples);
+                        values[feat][sample][class] = probabilityByClassFeature(dataset_train, class + 1, feat, value, min[feat], max[feat], additional_parameters, FEMbasisF);
+                    }
                 }
+
             }
-        }
-        #pragma barrier
     }
+
     for (i = 0; i < dataset_train->number_of_features; i++) // loop feature out
     {
 
