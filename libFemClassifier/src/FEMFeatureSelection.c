@@ -14,7 +14,7 @@ double probabilityByClassFeature(FEMDataset* dataset, int class, int feat_id,
     int SIZE = dataset->number_of_samples;
     struct FEMa_local_sample_info local_data[SIZE];
 
-    for (i = 0; i < dataset->number_of_samples; i++) {
+    for (i = 0; i < SIZE; i++) {
         if (dataset->samples[i].class == class) {
             local_data[i].value = 1.0;
         } else {
@@ -152,7 +152,6 @@ double FeatureSelectionVector(FEMDataset* dataset_train,
 
     for (i = 0; i < dataset_train->number_of_features; i++) // loop feature out
     {
-
         for (j = i + 1; j < dataset_train->number_of_features;
              j++) // loop feature in
         {
