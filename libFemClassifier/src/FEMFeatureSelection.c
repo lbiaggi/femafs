@@ -25,8 +25,8 @@ double probabilityByClassFeature(FEMDataset* dataset, int class, int feat_id,
     }
 
     for (i = 0; i < SIZE; i++){
-        local_data[i].weigth /= (sum + 0.0000000000000001);
-        probability += local_data[i].value * local_data[i].weigth;
+            local_data[i].weigth /= (sum + 0.0000000000000001);
+            probability += local_data[i].value * local_data[i].weigth;
     }
 
     return probability;
@@ -124,13 +124,13 @@ double FeatureSelectionVector(FEMDataset* dataset_train,
     }
 
     for(feat = 0; feat < dataset_train->number_of_features; feat++){
+        prob_feat_discrepancy[feat] = 0.0;
         values[feat] = (double**)malloc(sizeof(double*) * n_samples);
+        feat_id[feat] = feat;
+        getMinMaxFeature(dataset_train, feat, &min[feat], &max[feat]);
         for (sample = 0; sample < n_samples; sample++) {
             values[feat][sample] = (double*)malloc( sizeof(double) * dataset_train->number_of_classes);
         }
-        feat_id[feat] = feat;
-        prob_feat_discrepancy[feat] = 0.0;
-        getMinMaxFeature(dataset_train, feat, &min[feat], &max[feat]);
     }
 
     #pragma omp parallel
