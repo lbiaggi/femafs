@@ -52,7 +52,7 @@ void dealloc_FEMDataset(FEMDataset* dataset)
 
 void readDataset(FEMDataset* dataset, char* name_file_samples)
 {
-    int i, j, k;
+    int samples = 0 , feature = 0;
     FILE* file_samples = fopen(name_file_samples, "r");
     int number_of_classes = 0, number_of_samples = 0, number_of_features = 0;
 
@@ -66,24 +66,24 @@ void readDataset(FEMDataset* dataset, char* name_file_samples)
         &number_of_features);
     alloc_FEMDataset(dataset, number_of_classes, number_of_samples, number_of_features);
 
-    for (i = 0; i < number_of_samples; i++) {
-        int class;
+    for (samples = 0; samples < number_of_samples; samples++) {
+        int class = -1;
 
         fscanf(file_samples, "%d", &class);
         if (class <= 0 || class > number_of_classes) {
             fprintf(stderr,
                 "ERROR: readDataset(). Sample %d with illegal class: %d \
 number_of_classes: %d\n",
-                i, class, number_of_classes);
+                samples, class, number_of_classes);
             exit(1);
         }
 
-        dataset->samples[i].class = class;
+        dataset->samples[samples].class = class;
 
         dataset->samples_per_class[class]++;
 
-        for (j = 0; j < number_of_features; j++)
-            fscanf(file_samples, "%lf", &(dataset->samples[i].features[j]));
+        for (feature = 0; feature < number_of_features; feature++)
+            fscanf(file_samples, "%lf", &(dataset->samples[samples].features[feature]));
     }
     return;
 }
