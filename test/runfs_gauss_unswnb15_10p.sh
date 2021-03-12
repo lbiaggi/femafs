@@ -6,7 +6,7 @@ DIR_NAME="EVAL_UNSWNB15_10P_GAUSS"
 TRAIN_DAT="train_unswnb15_10p.dat"
 TEST_DAT="test_unswnb15_10p.dat"
 
-# cd ${CMAKE_CURRENT_BINARY_DIR}
+cd ${CMAKE_CURRENT_BINARY_DIR}
 if [[ -d "${DIR_NAME}" ]]; then
     echo -e "Deleting old dir ${DIR_NAME}\n"
     rm -rf ${DIR_NAME}
@@ -63,4 +63,4 @@ do
     cat "iteration_${i}"/result_opf_final >> ${RESULT_OPF}
     cat "iteration_${i}"/result_opffemafs_final >> ${RESULT_OPF}
 done
-#cd ${CMAKE_CURRENT_BINARY_DIR}
+cd ${CMAKE_CURRENT_BINARY_DIR}

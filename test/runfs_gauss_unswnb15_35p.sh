@@ -6,7 +6,7 @@ DIR_NAME="EVAL_UNSWNB15_35P_GAUSS"
 TRAIN_DAT="train_unswnb15_35p.dat"
 TEST_DAT="test_unswnb15_35p.dat"
 
-# cd ${CMAKE_CURRENT_BINARY_DIR}
+cd ${CMAKE_CURRENT_BINARY_DIR}
 if [[ -d "${DIR_NAME}" ]]; then
     echo -e "Deleting old dir ${DIR_NAME}\n"
     rm -rf ${DIR_NAME}
