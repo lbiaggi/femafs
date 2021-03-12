@@ -1,15 +1,65 @@
-#!/bin/env sh
-TEST_DIR="TOR_NONTOR_10p_gauss"
-TRAIN_DAT="tor_nontor_train.dat"
-TEST_DAT="tor_nontor_test.dat"
+#!/bin/env bash
+# number of tests
+END=10
+
+DIR_NAME="EVAL_TOR_NONTOR_10P_GAUSS"
+TRAIN_DAT="train_tor_nontor_10p.dat"
+TEST_DAT="test_tor_nontor_10p.dat"
+
 cd ${CMAKE_CURRENT_BINARY_DIR}
-mkdir "$TEST_DIR"
+if [[ -d "${DIR_NAME}" ]]; then
+    echo -e "Deleting old dir ${DIR_NAME}\n"
+    rm -rf ${DIR_NAME}
+fi
 
-cd "$TEST_DIR"
-${CMAKE_CURRENT_BINARY_DIR}/femafs 2 0.10 ${CMAKE_CURRENT_BINARY_DIR}/tor-nontor/10p/tor_nontor_train_10.fem ${CMAKE_CURRENT_BINARY_DIR}/tor-nontor/10p/tor_nontor_test_10.fem 9.0 >> result_femafs
-txt2opf train.feature.out "$TRAIN_DAT"
-txt2opf test.feature.out "$TEST_DAT"
-opf_train "$TRAIN_DAT"
-opf_classify "$TEST_DAT"
-opf_accuracy "$TEST_DAT" >> result_femafs_final
+mkdir "${DIR_NAME}"
+cd "${DIR_NAME}"
 
+FEMA_TRAIN="train-tornontor.fem"
+FEMA_TEST="test-tornontor.fem"
+OPF_TEST="test-tornontor.opf"
+OPF_TRAIN="train-tornontor.opf"
+
+for i in $(seq 1 $END);
+do
+    echo -e "Testing N: ${i}\n"
+    TEST_DIR="iteration_${i}"
+    mkdir "$TEST_DIR"
+    cd "$TEST_DIR"
+    python "${CMAKE_CURRENT_BINARY_DIR}/preprocessing_tornontor.py" -ta "${CMAKE_CURRENT_BINARY_DIR}/data/tor-nontor/tor-nontor-train.txt" -te "${CMAKE_CURRENT_BINARY_DIR}/data/tor-nontor/tor-nontor-testing.txt" ${CMAKE_CURRENT_BINARY_DIR}/femafs 2 0.10 ${FEMA_TRAIN} ${FEMA_TEST} 9.0 2> result_femafs
+    echo -e "Preprocessing for test N: ${i}\n"
+    echo -e "Feature selection with fema  for test N: ${i}\n"
+    ../../femafs 2 0.10 "${FEMA_TRAIN}" "${FEMA_TEST}" 9.0 &> result_femafs
+    txt2opf train.feature.out "$TRAIN_DAT" >> log_txt2opf
+    txt2opf test.feature.out "$TEST_DAT"   >> log_txt2opf
+    echo -e "\nOPF and feature selection with fema  for test N: ${i}\n"
+    opf_train "$TRAIN_DAT" &> result_opffemafs_train
+    opf_classify "$TEST_DAT" &> result_opffemafs_classify
+    opf_accuracy "$TEST_DAT" &> result_opffemafs_final
+    echo -e "\nOPF alone for test N: ${i}\n"
+    txt2opf ${OPF_TEST} testing.dat >> log_txt2opf
+    txt2opf ${OPF_TRAIN} training.dat >> log_txt2opf
+    opf_train training.dat &> result_opf_train
+    opf_classify testing.dat &> result_opf_classify
+    opf_accuracy testing.dat &> result_opf_final
+    echo -e "\nTest ${i} done\n"
+    cd ..
+done
+
+cd ..
+
+RESULT_OPF="result_opf"
+RESULT_OPF_FEMA="result_opf_fema"
+if [[ -f "$RESULT_OPF" ]]; then
+    rm $RESULT_OPF
+fi
+if [[ -f "$RESULT_OPF_FEMA" ]]; then
+    rm $RESULT_OPF_FEMA
+fi
+
+for i in $(seq 1 $END);
+do
+    cat "iteration_${i}"/result_opf_final >> ${RESULT_OPF}
+    cat "iteration_${i}"/result_opffemafs_final >> ${RESULT_OPF}
+done
+cd ${CMAKE_CURRENT_BINARY_DIR}
