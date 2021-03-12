@@ -25,7 +25,7 @@ do
     TEST_DIR="iteration_${i}"
     mkdir "$TEST_DIR"
     cd "$TEST_DIR"
-    # python "preprocessing_unswnb15.py" -ta "${CMAKE_CURRENT_BINARY_DIR}/unswnb15/UNSW_NB15_training-set.csv" -te "${CMAKE_CURRENT_BINARY_DIR}/unswnb15/UNSW_NB15_testing-set.csv"
+    # python "${CMAKE_CURRENT_BINARY_DIR}/preprocessing_unswnb15.py" -ta "${CMAKE_CURRENT_BINARY_DIR}/unswnb15/UNSW_NB15_training-set.csv" -te "${CMAKE_CURRENT_BINARY_DIR}/unswnb15/UNSW_NB15_testing-set.csv"
     # ${CMAKE_CURRENT_BINARY_DIR}/femafs 0 0.50 ${FEMA_TRAIN} ${FEMA_TEST} 6.0 2> result_femafs
     echo -e "Preprocessing for test N: ${i}\n"
     python "../../preprocessing_unswnb15.py" -ta "../../UNSW_NB15_training-set.csv" -te "../../UNSW_NB15_testing-set.csv"
