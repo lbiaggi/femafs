@@ -25,12 +25,10 @@ do
     TEST_DIR="iteration_${i}"
     mkdir "$TEST_DIR"
     cd "$TEST_DIR"
-    # python "${CMAKE_CURRENT_BINARY_DIR}/preprocessing_unswnb15.py" -ta "${CMAKE_CURRENT_BINARY_DIR}/unswnb15/UNSW_NB15_training-set.csv" -te "${CMAKE_CURRENT_BINARY_DIR}/unswnb15/UNSW_NB15_testing-set.csv"
-    # ${CMAKE_CURRENT_BINARY_DIR}/femafs 0 0.25 ${FEMA_TRAIN} ${FEMA_TEST} 6.0 2> result_femafs
     echo -e "Preprocessing for test N: ${i}\n"
-    python "../../preprocessing_unswnb15.py" -ta "../../UNSW_NB15_training-set.csv" -te "../../UNSW_NB15_testing-set.csv"
+    python "${CMAKE_CURRENT_BINARY_DIR}/preprocessing_unswnb15.py" -ta "${CMAKE_CURRENT_BINARY_DIR}/data/unswnb15/UNSW_NB15_training-set.csv" -te "${CMAKE_CURRENT_BINARY_DIR}/data/unswnb15/UNSW_NB15_testing-set.csv"
     echo -e "Feature selection with fema  for test N: ${i}\n"
-    ../../femafs 0 0.25 "${FEMA_TRAIN}" "${FEMA_TEST}" 6.0 &> result_femafs
+    ${CMAKE_CURRENT_BINARY_DIR}/femafs 0 0.25 ${FEMA_TRAIN} ${FEMA_TEST} 6.0 2> result_femafs
     txt2opf train.feature.out "$TRAIN_DAT" >> log_txt2opf
     txt2opf test.feature.out "$TEST_DAT"   >> log_txt2opf
     echo -e "\nOPF and feature selection with fema  for test N: ${i}\n"
@@ -63,4 +61,4 @@ do
     cat "iteration_${i}"/result_opf_final >> ${RESULT_OPF}
     cat "iteration_${i}"/result_opffemafs_final >> ${RESULT_OPF}
 done
-#cd ${CMAKE_CURRENT_BINARY_DIR}
+cd ${CMAKE_CURRENT_BINARY_DIR}
