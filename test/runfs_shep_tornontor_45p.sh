@@ -45,7 +45,6 @@ do
     cd ..
 done
 
-cd ..
 
 RESULT_OPF="result_opf"
 RESULT_OPF_FEMA="result_opf_fema"

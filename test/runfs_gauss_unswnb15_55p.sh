@@ -45,7 +45,6 @@ do
     cd ..
 done
 
-cd ..
 
 RESULT_OPF="result_opf"
 RESULT_OPF_FEMA="result_opf_fema"
@@ -61,4 +60,4 @@ do
     cat iteration_$i/result_opf_final >> $RESULT_OPF
     cat iteration_$i/result_opffemafs_final >> $RESULT_OPF_FEMA
 done
-#cd ${CMAKE_CURRENT_BINARY_DIR}
+cd ${CMAKE_CURRENT_BINARY_DIR}
