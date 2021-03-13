@@ -28,7 +28,7 @@ do
     echo -e "Preprocessing for test N: $i\n"
     python "${CMAKE_CURRENT_BINARY_DIR}/preprocessing_unswnb15.py" -ta "${CMAKE_CURRENT_BINARY_DIR}/data/unswnb15/UNSW_NB15_training-set.csv" -te "${CMAKE_CURRENT_BINARY_DIR}/data/unswnb15/UNSW_NB15_testing-set.csv"
     echo -e "Feature selection with fema  for test N: $i\n"
-    ${CMAKE_CURRENT_BINARY_DIR}/femafs 2 0.20 $FEMA_TRAIN $FEMA_TEST 9.0 2> result_femafs
+    ${CMAKE_CURRENT_BINARY_DIR}/femafs 2 0.20 $FEMA_TRAIN $FEMA_TEST 9.0 &> result_femafs
     txt2opf train.feature.out $TRAIN_DAT >> log_txt2opf
     txt2opf test.feature.out $TEST_DAT   >> log_txt2opf
     echo -e "\nOPF and feature selection with fema  for test N: $i\n"
@@ -59,6 +59,6 @@ fi
 for i in $(seq 1 $END);
 do
     cat iteration_$i/result_opf_final >> $RESULT_OPF
-    cat iteration_$i/result_opffemafs_final >> $RESULT_OPF
+    cat iteration_$i/result_opffemafs_final >> $RESULT_OPF_FEMA
 done
 cd ${CMAKE_CURRENT_BINARY_DIR}

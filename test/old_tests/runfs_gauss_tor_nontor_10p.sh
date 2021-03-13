@@ -26,7 +26,7 @@ do
     TEST_DIR="iteration_${i}"
     mkdir "$TEST_DIR"
     cd "$TEST_DIR"
-    python "${CMAKE_CURRENT_BINARY_DIR}/preprocessing_tornontor.py" -ta "${CMAKE_CURRENT_BINARY_DIR}/data/tor-nontor/tor-nontor-train.txt" -te "${CMAKE_CURRENT_BINARY_DIR}/data/tor-nontor/tor-nontor-testing.txt" ${CMAKE_CURRENT_BINARY_DIR}/femafs 2 0.10 ${FEMA_TRAIN} ${FEMA_TEST} 9.0 2> result_femafs
+    python "${CMAKE_CURRENT_BINARY_DIR}/preprocessing_tornontor.py" -ta "${CMAKE_CURRENT_BINARY_DIR}/data/tor-nontor/tor-nontor-train.txt" -te "${CMAKE_CURRENT_BINARY_DIR}/data/tor-nontor/tor-nontor-testing.txt" ${CMAKE_CURRENT_BINARY_DIR}/femafs 2 0.10 ${FEMA_TRAIN} ${FEMA_TEST} 9.0 &> result_femafs
     echo -e "Preprocessing for test N: ${i}\n"
     echo -e "Feature selection with fema  for test N: ${i}\n"
     ../../femafs 2 0.10 "${FEMA_TRAIN}" "${FEMA_TEST}" 9.0 &> result_femafs

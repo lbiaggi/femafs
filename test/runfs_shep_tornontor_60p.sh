@@ -28,7 +28,7 @@ do
     echo -e "Preprocessing for test N: $i\n"
      python "${CMAKE_CURRENT_BINARY_DIR}/preprocessing_tor-nontor.py" -ta "${CMAKE_CURRENT_BINARY_DIR}/unswnb60/tor-nontor-train.txt" -te "${CMAKE_CURRENT_BINARY_DIR}/unswnb60/tor-nontor-testing.txt"
     echo -e "Feature selection with fema  for test N: $i\n"
-    ${CMAKE_CURRENT_BINARY_DIR}/femafs 0 0.60 $FEMA_TRAIN $FEMA_TEST 6.0 &>> result_femafs
+    ${CMAKE_CURRENT_BINARY_DIR}/femafs 0 0.60 $FEMA_TRAIN $FEMA_TEST 6.0 &> result_femafs
     txt2opf train.feature.out $TRAIN_DAT >> log_txt2opf
     txt2opf test.feature.out $TEST_DAT   >> log_txt2opf
     echo -e "\nOPF and feature selection with fema  for test N: $i\n"
@@ -59,6 +59,6 @@ fi
 for i in $(seq 1 $END);
 do
     cat iteration_$i/result_opf_final >> $RESULT_OPF
-    cat iteration_$i/result_opffemafs_final >> $RESULT_OPF
+    cat iteration_$i/result_opffemafs_final >> $RESULT_OPF_FEMA
 done
 cd ${CMAKE_CURRENT_BINARY_DIR}

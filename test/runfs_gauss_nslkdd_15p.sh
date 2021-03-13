@@ -59,6 +59,6 @@ fi
 for i in $(seq 1 $END);
 do
     cat iteration_$i/result_opf_final >> $RESULT_OPF
-    cat iteration_$i/result_opffemafs_final >> $RESULT_OPF
+    cat iteration_$i/result_opffemafs_final >> $RESULT_OPF_FEMA
 done
 cd ${CMAKE_CURRENT_BINARY_DIR}
