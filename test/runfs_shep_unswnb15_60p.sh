@@ -26,7 +26,7 @@ do
     mkdir $TEST_DIR
     cd $TEST_DIR
     echo -e "Preprocessing for test N: $i\n"
-     python "${CMAKE_CURRENT_BINARY_DIR}/preprocessing_unswnb15.py" -ta "${CMAKE_CURRENT_BINARY_DIR}/unswnb60/UNSW_NB15_training-set.csv" -te "${CMAKE_CURRENT_BINARY_DIR}/unswnb60/UNSW_NB15_testing-set.csv"
+     python "${CMAKE_CURRENT_BINARY_DIR}/preprocessing_unswnb15.py" -ta "${CMAKE_CURRENT_BINARY_DIR}/data/unswnb15/UNSW_NB15_training-set.csv" -te "${CMAKE_CURRENT_BINARY_DIR}/data/unswnb15/UNSW_NB15_testing-set.csv"
     echo -e "Feature selection with fema  for test N: $i\n"
     ${CMAKE_CURRENT_BINARY_DIR}/femafs 0 0.60 $FEMA_TRAIN $FEMA_TEST 6.0 &> result_femafs
     txt2opf train.feature.out $TRAIN_DAT >> log_txt2opf
