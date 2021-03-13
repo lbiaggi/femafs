@@ -111,7 +111,7 @@ add_custom_target(
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_shep_nslkdd_50p.sh
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_shep_nslkdd_55p.sh
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_shep_nslkdd_60p.sh
-  DEPENDS femafs datasets
+  DEPENDS preprocessing_scripts
 )
 # ISCXTOR2016
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/runfs_gauss_tornontor_10p.sh ${CMAKE_CURRENT_BINARY_DIR}/runfs_gauss_tornontor_10p.sh)
@@ -161,7 +161,7 @@ add_custom_target(
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_shep_tornontor_50p.sh
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_shep_tornontor_55p.sh
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_shep_tornontor_60p.sh
-  DEPENDS femafs datasets
+  DEPENDS preprocessing_scripts
 )
 
 # UNSWNB15
@@ -213,5 +213,5 @@ add_custom_target(
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_shep_unswnb15_50p.sh
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_shep_unswnb15_55p.sh
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_shep_unswnb15_60p.sh
-  DEPENDS femafs datasets
+  DEPENDS preprocessing_scripts
 )
