@@ -26,9 +26,23 @@ add_custom_command(
   $<TARGET_FILE_DIR:femafs>/data
   DEPENDS femafs
 )
+
+set(_pypkg_pandas "pandas")
+set(_pypkg_sklearn "scikit-learn")
+find_package(Python3 COMPONENTS Interpreter REQUIRED)
+if(DEFINED ENV{VIRTUAL_ENV} OR DEFINED ENV{CONDA_PREFIX})
+  set(_pip_args)
+else()
+  set(_pip_args "--user")
+endif()
+# execute_process(COMMAND ${Python3_EXECUTABLE} -m pip install ${_pip_args} ${_pypkg_pandas})
+# execute_process(COMMAND ${Python3_EXECUTABLE} -m pip install ${_pip_args} ${_pypkg_sklearn})
+
 add_custom_target(preprocessing_scripts ALL)
 add_custom_command(
   TARGET preprocessing_scripts POST_BUILD
+  COMMAND ${Python3_EXECUTABLE} -m pip install ${_pip_args} ${_pypkg_pandas}
+  COMMAND ${Python3_EXECUTABLE} -m pip install ${_pip_args} ${_pypkg_sklearn}
   COMMAND ${CMAKE_COMMAND} -E copy
   ${CMAKE_CURRENT_SOURCE_DIR}/*.py
   $<TARGET_FILE_DIR:femafs>
@@ -217,7 +231,8 @@ add_custom_target(
 )
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/speedtest.sh ${CMAKE_CURRENT_BINARY_DIR}/speedtest.sh)
-add_custom_target(speedtest
+add_custom_target(
+  speedtest
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/speedtest.sh
   DEPENDS preprocessing_scripts
 )
