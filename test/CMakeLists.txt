@@ -215,3 +215,9 @@ add_custom_target(
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_shep_unswnb15_60p.sh
   DEPENDS preprocessing_scripts
 )
+
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/speedtest.sh ${CMAKE_CURRENT_BINARY_DIR}/speedtest.sh)
+add_custom_target(speedtest
+  COMMAND ${CMAKE_CURRENT_BINARY_DIR}/speedtest.sh
+  DEPENDS preprocessing_scripts
+)
