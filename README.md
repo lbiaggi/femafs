@@ -20,11 +20,11 @@ Procedimento Atual para utilização:
 1. `git clone git@github.com:lbiaggi/fema_cmake.git`
 2. `cmake -H. -Bbuild`
 3. `cd build && make`
-3. `make nslkdd (dataset NSL-KDD) ou make tornontor (dataset ICSXTOR-2016)`
+3. `make nslkdd (dataset NSL-KDDcom 2 classes) ou make tornontor (dataset ICSXTOR-2016 com 2 classes) ou make unswnb15 (dataset UNSW-NB15 com 10 classes)`
 4. `Resultados esterão em diretórios de fácil identificação no diretório build/test/`
 
 
-
+### AVISO só é utilizado 10% de cada dataset citado.
 
 
 ### Agradecimentos
