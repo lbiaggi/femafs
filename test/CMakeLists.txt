@@ -70,9 +70,8 @@ add_custom_command(
   COMMAND ${Python3_EXECUTABLE} -m pip install ${_pip_args} ${_pypkg_pandas}
   COMMAND ${Python3_EXECUTABLE} -m pip install ${_pip_args} ${_pypkg_sklearn}
   COMMAND ${Python3_EXECUTABLE} -m pip install ${_pip_args} ${_pypkg_sh}
-  COMMAND ${CMAKE_COMMAND} -E copy
-  ${CMAKE_CURRENT_SOURCE_DIR}/pre*.py
-  $<TARGET_FILE_DIR:femafs>
+  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/pre*.py $<TARGET_FILE_DIR:femafs>
+  COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/hel*.py $<TARGET_FILE_DIR:femafs>
   DEPENDS datasets
 )
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/postrun_analysis.py ${CMAKE_CURRENT_BINARY_DIR}/postrun_analysis.py)
