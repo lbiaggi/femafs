@@ -1,3 +1,28 @@
+function(compile_configuration outfiles)
+    set(options)
+    set(oneValueArgs TARGET)
+    set(multiValueArgs OPTIONS DEPENDS)
+
+    cmake_parse_arguments(_WRAP_CPP "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+
+    set(configuration_files ${_WRAP_CPP_UNPARSED_ARGUMENTS})
+
+    foreach(it ${configuration_files})
+        get_filename_component(it ${it} ABSOLUTE)
+        get_filename_component(_FILENAME_ ${it} NAME_WLE)
+        message("File to process ${_FILENAME_}")
+
+        add_custom_command(
+            OUTPUT "${_FILENAME_}.cpp"
+            COMMAND confgen ${it}
+            WORKING_DIRECTORY ${CMAKE_BUILD_FOLDER}
+        )
+
+        list(APPEND outfiles "${_FILENAME_}.cpp")
+    endforeach()
+    set(${outfiles} ${${outfiles}} PARENT_SCOPE)
+endfunction()
+
 add_executable(
   femafs
   femafs.c
@@ -29,6 +54,7 @@ add_custom_command(
 
 set(_pypkg_pandas "pandas")
 set(_pypkg_sklearn "scikit-learn")
+set(_pypkg_sh "sh")
 find_package(Python3 COMPONENTS Interpreter REQUIRED)
 if(DEFINED ENV{VIRTUAL_ENV} OR DEFINED ENV{CONDA_PREFIX})
   set(_pip_args)
@@ -43,10 +69,20 @@ add_custom_command(
   TARGET preprocessing_scripts POST_BUILD
   COMMAND ${Python3_EXECUTABLE} -m pip install ${_pip_args} ${_pypkg_pandas}
   COMMAND ${Python3_EXECUTABLE} -m pip install ${_pip_args} ${_pypkg_sklearn}
+  COMMAND ${Python3_EXECUTABLE} -m pip install ${_pip_args} ${_pypkg_sh}
   COMMAND ${CMAKE_COMMAND} -E copy
-  ${CMAKE_CURRENT_SOURCE_DIR}/*.py
+  ${CMAKE_CURRENT_SOURCE_DIR}/pre*.py
   $<TARGET_FILE_DIR:femafs>
   DEPENDS datasets
+)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/postrun_analysis.py ${CMAKE_CURRENT_BINARY_DIR}/postrun_analysis.py)
+
+add_custom_target(post_processing_script)
+
+add_custom_command(
+  TARGET post_processing_script POST_BUILD
+  COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/postrun_analysis.py
+  DEPENDS preprocessing_scripts
 )
 
 # # NSL-KDD
