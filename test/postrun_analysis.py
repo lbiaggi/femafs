@@ -62,9 +62,9 @@ def walk_through_testdir(directory:str, finaldata:list):
         generate_opf_pd(dset,perc,fem)
         generate_dict_data(fem, finaldata, 'fema')
         generate_dict_data(fem, finaldata, 'opf')
-    elif "unswnb15" == dset:
-        generate_fema_opf_pd(dset, perc,fem, 'usnw-nb15')
-        generate_opf_pd(dset,perc,fem)
+    elif "unswnb15" == dset.lower():
+        generate_fema_opf_pd(dset, perc,fem)
+        generate_opf_pd(dset,perc,fem,'usnw-nb15')
         generate_dict_data(fem, finaldata, 'fema')
         generate_dict_data(fem, finaldata, 'opf')
 
@@ -147,7 +147,7 @@ def walk_through_datasets(startdir:str, dataset:list):
     df.to_csv("final_data.csv", index=False)
     print(f"File Generated")
 
-if '__name__' == __main__:
+if __name__ == '__main__':
     datasets = [
         'nslkdd',
         'tornontor',
