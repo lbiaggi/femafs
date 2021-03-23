@@ -144,7 +144,7 @@ def walk_through_datasets(startdir:str, dataset:list):
     df = pd.DataFrame(data=pandaslist)
     df['dataset'] = df['dataset'].apply(lambda x: x.lower().replace('-', ''))
     print(f"Generating final_data.csv in {startdir}")
-    df.to_csv("final_data.csv", index=False)
+    df.to_csv("${CMAKE_CURRENT_BINARY_DIR}/final_data.csv", index=False)
     print(f"File Generated")
 
 if __name__ == '__main__':
