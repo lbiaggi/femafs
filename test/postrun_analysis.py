@@ -128,9 +128,9 @@ def walk_through_datasets(startdir:str, dataset:list):
     print(f"File Generated")
 
 if '__name__' == __main__:
-    dataset = [
+    datasets = [
         'nslkdd',
-        'tornontor'
+        'tornontor',
         'UNSWNB15'
         ]
-    walk_through_datasets("${CMAKE_CURRENT_BINARY_DIR}", dataset)
+    walk_through_datasets("${CMAKE_CURRENT_BINARY_DIR}", datasets)
