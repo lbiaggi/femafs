@@ -1,6 +1,6 @@
 #!/bin/env bash
 # number of tests
-END=10
+END=25
 
 DIR_NAME="EVAL_UNSWNB15_25P_SHEP"
 TRAIN_DAT="train_unswnb15_25p.dat"

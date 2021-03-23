@@ -1,6 +1,6 @@
 #!/bin/env bash
 # number of tests
-END=10
+END=25
 
 DIR_NAME="EVAL_nslkdd_60P_SHEP"
 TRAIN_DAT="train_nslkdd_60p.dat"

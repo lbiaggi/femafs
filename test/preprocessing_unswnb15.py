@@ -7,7 +7,8 @@ from helpers import *
 pd.options.mode.use_inf_as_na = True
 
 
-def preprocess_unswnb15(TRAIN_DATA, TEST_DATA, generate_labels_file=False):
+def preprocess_unswnb15(TRAIN_DATA, TEST_DATA, generate_labels_file=False,
+        multi_class=False):
     # df = pd.read_csv("UNSW_NB15_training-set.csv")
     # df_test = pd.read_csv("UNSW_NB15_testing-set.csv")
     df = pd.read_csv(TRAIN_DATA)
@@ -23,15 +24,16 @@ def preprocess_unswnb15(TRAIN_DATA, TEST_DATA, generate_labels_file=False):
     except:
         print("teste não tem id")
 
-    try:
-        df.drop('label', inplace=True, axis=1)
-    except:
-        print("treino não tem label")
+    if multi_class:
+        try:
+            df.drop('label', inplace=True, axis=1)
+        except:
+            print("treino não tem label")
 
-    try:
-        df_test.drop('label', inplace=True, axis=1)
-    except:
-        print("teste não tem label")
+        try:
+            df_test.drop('label', inplace=True, axis=1)
+        except:
+            print("teste não tem label")
 
 
     cols = df.columns.tolist()
@@ -45,8 +47,8 @@ def preprocess_unswnb15(TRAIN_DATA, TEST_DATA, generate_labels_file=False):
     states = dict((i[1], i[0]) for i in enumerate(set(list(df.state.unique()) + list(df_test.state.unique())),start=1))
     attack_cat  = dict((i[1], i[0]) for i in enumerate(set(list(df.attack_cat.unique()) + list(df_test.attack_cat.unique())),start=1))
 
-    # df.label = pd.factorize(df['label'])[0] + 1
-    # df_test.label = pd.factorize(df_test['label'])[0] + 1
+    df.label = pd.factorize(df['label'])[0] + 1
+    df_test.label = pd.factorize(df_test['label'])[0] + 1
 
     for i in data.keys():
         df.loc[df['proto'].eq(i), 'proto'] = data[i]
@@ -79,7 +81,7 @@ def preprocess_unswnb15(TRAIN_DATA, TEST_DATA, generate_labels_file=False):
     df['attack_cat'] = df['attack_cat'].astype('int64')
     df_test['attack_cat'] = df_test['attack_cat'].astype('int64')
 
-    if generate_labels_file:
+    if generate_labels_file and not multi_class:
         with open("Labels.txt", 'w') as f:
             f.write("Labels Meaning\n")
             for k,v in attack_cat.items():

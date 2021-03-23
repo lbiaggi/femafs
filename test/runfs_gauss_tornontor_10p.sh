@@ -1,6 +1,6 @@
 #!/bin/env bash
 # number of tests
-END=10
+END=25
 
 DIR_NAME="EVAL_tornontor_10P_GAUSS"
 TRAIN_DAT="train_tor-nontor_10p.dat"

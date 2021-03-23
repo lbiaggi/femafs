@@ -75,42 +75,61 @@ def walk_through_testdir(directory:str, finaldata:list):
 
     os.chdir("..")
 
+
 def generate_fema_opf_pd(dataset:str, percentage:str, fem:str,
         fixdatasetname:str=None):
 
     testdirs=sorted([ name for name in os.listdir(os.getcwd()) if os.path.isdir(os.path.join(os.getcwd(), name))])
     for d in testdirs:
-       i = d.split("_")[-1]
-       if fixdatasetname:
-           out_file = f'fema_opf_{i}_{fixdatasetname}_{percentage.lower()}_{fem}'
-           pr_file=f'iteration_{i}/test_{fixdatasetname.lower()}_{percentage.lower()}.dat.out'
-       else:
-           out_file = f'fema_opf_{i}_{dataset}_{percentage.lower()}_{fem}'
-           pr_file=f'iteration_{i}/test_{dataset.lower()}_{percentage.lower()}.dat.out'
+        try:
+           i = d.split("_")[-1]
+           if fixdatasetname:
+               out_file = f'fema_opf_{i}_{fixdatasetname}_{percentage.lower()}_{fem}'
+               pr_file=f'iteration_{i}/test_{fixdatasetname.lower()}_{percentage.lower()}.dat.out'
+           else:
+               out_file = f'fema_opf_{i}_{dataset}_{percentage.lower()}_{fem}'
+               pr_file=f'iteration_{i}/test_{dataset.lower()}_{percentage.lower()}.dat.out'
 
-       sh.cut(sh.tail(f"iteration_{i}/test.feature.out", n="+2"), f=2, d=" ", _out=f"fema_{i}")
-       sh.pr(f'fema_{i}', pr_file, w=3,m=True,t=True, _out=out_file)
-       sh.rm(f'fema_{i}', f=True)
+           sh.cut(sh.tail(f"iteration_{i}/test.feature.out", n="+2"), f=2, d=" ", _out=f"fema_{i}")
+           sh.pr(f'fema_{i}', pr_file, w=3,m=True,t=True, _out=out_file)
+           sh.rm(f'fema_{i}', f=True)
+
+        except Exception as e:
+           print(f"Error processing data from {d}, {dataset}, {percentage},{fem}")
+           print(e)
+        except:
+           print(f"Error processing data from {d}, {dataset}, {percentage},{fem}")
 
 
 def generate_opf_pd(dataset:str, percentage:str, fem:str,
         fixdatasetname:str=None):
     testdirs=sorted([ name for name in os.listdir(os.getcwd()) if os.path.isdir(os.path.join(os.getcwd(), name))])
     for d in testdirs:
-       i = d.split("_")[-1]
-       pr_file=f'iteration_{i}/testing.dat.out'
-       if fixdatasetname:
-           tail_file = f'iteration_{i}/test_{fixdatasetname}.opf'
-           out_file = f'opf_{i}_{fixdatasetname}_{percentage.lower()}_{fem}'
-       else:
-           tail_file = f'iteration_{i}/test_{dataset}.opf'
-           out_file = f'opf_{i}_{dataset}_{percentage.lower()}_{fem}'
+        try:
+           i = d.split("_")[-1]
+           pr_file=f'iteration_{i}/testing.dat.out'
+           if fixdatasetname:
+               tail_file = f'test-{fixdatasetname}.opf'
+               out_file = f'opf_{i}_{fixdatasetname}_{percentage.lower()}_{fem}'
+           else:
+               tail_file = f'test-{dataset}.opf'
+               out_file = f'opf_{i}_{dataset}_{percentage.lower()}_{fem}'
 
-       sh.cut(sh.tail(f"iteration_{i}/test.feature.out", n="+2"),
-               f=2, d=" ", _out=f"opf_{i}")
-       sh.pr(f'opf_{i}', pr_file,
-               w=3,m=True,t=True, _out=out_file)
-       sh.rm(f'opf_{i}')
+           sh.cut(sh.tail(f"iteration_{i}/{tail_file}", n="+2"),
+                   f=2, d=" ", _out=f"opf_{i}")
+           sh.pr(f'opf_{i}', pr_file,
+                   w=3,m=True,t=True, _out=out_file)
+           sh.rm(f'opf_{i}')
+
+        except Exception as e:
+           print(f"Error processing data from {d}, {dataset}, {percentage},{fem}")
+           print(e)
+        except:
+           print(f"Error processing data from {d}, {dataset}, {percentage},{fem}")
+
+
+
+
 
 def walk_through_datasets(startdir:str, dataset:list):
     os.chdir(startdir)
@@ -123,6 +142,7 @@ def walk_through_datasets(startdir:str, dataset:list):
             walk_through_testdir(i, finaldata=pandaslist)
         print(f"Done with dataset")
     df = pd.DataFrame(data=pandaslist)
+    df['dataset'] = df['dataset'].apply(lambda x: x.lower().replace('-', ''))
     print(f"Generating final_data.csv in {startdir}")
     df.to_csv("final_data.csv", index=False)
     print(f"File Generated")
