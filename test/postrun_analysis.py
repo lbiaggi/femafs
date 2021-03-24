@@ -1,4 +1,5 @@
 import os
+import argparse
 import sh
 import pandas as pd
 import numpy as np
@@ -143,14 +144,19 @@ def walk_through_datasets(startdir:str, dataset:list):
         print(f"Done with dataset")
     df = pd.DataFrame(data=pandaslist)
     df['dataset'] = df['dataset'].apply(lambda x: x.lower().replace('-', ''))
-    print(f"Generating final_data.csv in {startdir}")
-    df.to_csv("${CMAKE_CURRENT_BINARY_DIR}/final_data.csv", index=False)
+    print(f"Generating final_data_{dataset[0]}.csv in {startdir}")
+    df.to_csv(f"${CMAKE_CURRENT_BINARY_DIR}/final_data_{dataset[0].lower()}.csv", index=False)
     print(f"File Generated")
 
 if __name__ == '__main__':
-    datasets = [
-        'nslkdd',
-        'tornontor',
-        'UNSWNB15'
-        ]
-    walk_through_datasets("${CMAKE_CURRENT_BINARY_DIR}", datasets)
+    parser = argparse.ArgumentParser(description="Postrun indexes generator.")
+    requiredNamed = parser.add_argument_group('required named arguments')
+    requiredNamed.add_argument('-d', '--dataset', nargs=1, type=str, action='store',
+                               help="<Required> ",
+                               required=True)
+    args = parser.parse_args()
+    if not args:
+        print(parser.print_help)
+
+    if args.dataset:
+        walk_through_datasets("${CMAKE_CURRENT_BINARY_DIR}", args.dataset)

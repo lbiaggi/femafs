@@ -80,10 +80,21 @@ add_custom_target(post_processing_script)
 
 add_custom_command(
   TARGET post_processing_script POST_BUILD
-  COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/postrun_analysis.py
-  DEPENDS preprocessing_scripts
+  DEPENDS post_processing_nslkdd post_processing_unswnb15 post_processing_tornontor
 )
 
+add_custom_target(post_processing_nslkdd
+  COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/postrun_analysis.py
+  -d "nslkdd"
+)
+add_custom_target(post_processing_tornontor
+  COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/postrun_analysis.py
+  -d "tornontor"
+)
+add_custom_target(post_processing_unswnb15
+  COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/postrun_analysis.py
+  -d "UNSWNB15"
+)
 # # NSL-KDD
 # configure_file(${CMAKE_CURRENT_SOURCE_DIR}/runfs_gauss_nsl_kdd_5p.sh ${CMAKE_CURRENT_BINARY_DIR}/runfs_gauss_nsl_kdd_5p.sh)
 # configure_file(${CMAKE_CURRENT_SOURCE_DIR}/runfs_gauss_nsl_kdd_10p.sh ${CMAKE_CURRENT_BINARY_DIR}/runfs_gauss_nsl_kdd_10p.sh)
