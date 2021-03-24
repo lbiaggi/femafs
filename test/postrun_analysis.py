@@ -64,7 +64,7 @@ def walk_through_testdir(directory:str, finaldata:list):
         generate_dict_data(fem, finaldata, 'opf')
     elif "unswnb15" == dset.lower():
         generate_fema_opf_pd(dset, perc,fem)
-        generate_opf_pd(dset,perc,fem,'usnw-nb15')
+        generate_opf_pd(dset,perc,fem,'unsw-nb15')
         generate_dict_data(fem, finaldata, 'fema')
         generate_dict_data(fem, finaldata, 'opf')
 

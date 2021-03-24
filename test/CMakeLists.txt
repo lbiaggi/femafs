@@ -137,7 +137,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/runfs_shep_nslkdd_55p.sh ${CMAKE_CURR
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/runfs_shep_nslkdd_60p.sh ${CMAKE_CURRENT_BINARY_DIR}/runfs_shep_nslkdd_60p.sh)
 
 add_custom_target(
-  nslkdd
+  nslkdd-gauss
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_gauss_nslkdd_10p.sh
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_gauss_nslkdd_15p.sh
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_gauss_nslkdd_20p.sh
@@ -149,6 +149,9 @@ add_custom_target(
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_gauss_nslkdd_50p.sh
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_gauss_nslkdd_55p.sh
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_gauss_nslkdd_60p.sh
+)
+add_custom_target(
+  nslkdd-shep
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_shep_nslkdd_10p.sh
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_shep_nslkdd_15p.sh
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_shep_nslkdd_20p.sh
@@ -160,7 +163,10 @@ add_custom_target(
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_shep_nslkdd_50p.sh
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_shep_nslkdd_55p.sh
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_shep_nslkdd_60p.sh
-  DEPENDS preprocessing_scripts
+  )
+add_custom_target(
+  nslkdd
+  DEPENDS nslkdd-gauss nslkdd-shep
 )
 # ISCXTOR2016
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/runfs_gauss_tornontor_10p.sh ${CMAKE_CURRENT_BINARY_DIR}/runfs_gauss_tornontor_10p.sh)
@@ -187,7 +193,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/runfs_shep_tornontor_55p.sh ${CMAKE_C
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/runfs_shep_tornontor_60p.sh ${CMAKE_CURRENT_BINARY_DIR}/runfs_shep_tornontor_60p.sh)
 
 add_custom_target(
-  tornontor
+  tornontor-gauss
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_gauss_tornontor_10p.sh
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_gauss_tornontor_15p.sh
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_gauss_tornontor_20p.sh
@@ -199,6 +205,10 @@ add_custom_target(
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_gauss_tornontor_50p.sh
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_gauss_tornontor_55p.sh
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_gauss_tornontor_60p.sh
+
+)
+add_custom_target(
+  tornontor-shep
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_shep_tornontor_10p.sh
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_shep_tornontor_15p.sh
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_shep_tornontor_20p.sh
@@ -210,7 +220,11 @@ add_custom_target(
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_shep_tornontor_50p.sh
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_shep_tornontor_55p.sh
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_shep_tornontor_60p.sh
-  DEPENDS preprocessing_scripts
+
+)
+add_custom_target(
+  tornontor
+  DEPENDS tornontor-gauss tornontor-shep
 )
 
 # UNSWNB15
@@ -239,7 +253,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/runfs_shep_unswnb15_60p.sh ${CMAKE_CU
 
 
 add_custom_target(
-  unswnb15
+ unswnb15-gauss
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_gauss_unswnb15_10p.sh
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_gauss_unswnb15_15p.sh
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_gauss_unswnb15_20p.sh
@@ -251,6 +265,9 @@ add_custom_target(
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_gauss_unswnb15_50p.sh
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_gauss_unswnb15_55p.sh
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_gauss_unswnb15_60p.sh
+)
+add_custom_target(
+ unswnb15-shep
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_shep_unswnb15_10p.sh
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_shep_unswnb15_15p.sh
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_shep_unswnb15_20p.sh
@@ -262,7 +279,11 @@ add_custom_target(
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_shep_unswnb15_50p.sh
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_shep_unswnb15_55p.sh
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_shep_unswnb15_60p.sh
-  DEPENDS preprocessing_scripts
+)
+
+add_custom_target(
+  unswnb15
+  DEPENDS unswnb15-gauss unswnb15-shep
 )
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/speedtest.sh ${CMAKE_CURRENT_BINARY_DIR}/speedtest.sh)
