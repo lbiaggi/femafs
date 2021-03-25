@@ -28,7 +28,7 @@ do
     echo -e "Preprocessing for test N: $i\n"
     python "${CMAKE_CURRENT_BINARY_DIR}/preprocessing_tor-nontor.py" -ta "${CMAKE_CURRENT_BINARY_DIR}/data/tor-nontor/tor-nontor-train.txt" -te "${CMAKE_CURRENT_BINARY_DIR}/data/tor-nontor/tor-nontor-testing.txt"
     echo -e "Feature selection with fema  for test N: $i\n"
-    ${CMAKE_CURRENT_BINARY_DIR}/femafs 2 0.20 $FEMA_TRAIN $FEMA_TEST 9.0 &>> result_femafs
+    ${CMAKE_CURRENT_BINARY_DIR}/femafs 2 0.20 $FEMA_TRAIN $FEMA_TEST 6.0 &>> result_femafs
     txt2opf train.feature.out $TRAIN_DAT >> log_txt2opf
     txt2opf test.feature.out $TEST_DAT   >> log_txt2opf
     echo -e "\nOPF and feature selection with fema  for test N: $i\n"
