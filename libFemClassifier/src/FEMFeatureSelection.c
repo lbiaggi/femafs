@@ -101,85 +101,85 @@ void createDatasetFeaturesSelectedOPFFormat(FEMDataset *dataset_train,
   }
 }
 
-double FeatureSelectionVector(FEMDataset *dataset_train,
-                              FEMDataset *dataset_test, int n_samples,
-                              double additional_parameters[],
-                              motherFunctionF *FEMbasisF, double perc,
-                              char out_train[], char out_test[]) {
-  int i, j, c1, c2, k;
-  int feat, sample, class; // J
+void FeatureSelectionVector(FEMDataset *dataset_train,
+        FEMDataset *dataset_test, int n_samples,
+        double additional_parameters[],
+        motherFunctionF *FEMbasisF, double perc,
+        char out_train[], char out_test[]) {
+    int i, j, c1, c2, k;
+    int feat, sample, class; // J
 
-  double *prob_feat_discrepancy =
-      (double *)malloc(sizeof(double) * dataset_train->number_of_features);
-  double *max =
-      (double *)malloc(sizeof(double) * dataset_train->number_of_features);
-  double *min =
-      (double *)malloc(sizeof(double) * dataset_train->number_of_features);
-  double ***values =
-      (double ***)malloc(sizeof(double **) * dataset_train->number_of_features);
+    double *prob_feat_discrepancy =
+        (double *)malloc(sizeof(double) * dataset_train->number_of_features);
+    double *max =
+        (double *)malloc(sizeof(double) * dataset_train->number_of_features);
+    double *min =
+        (double *)malloc(sizeof(double) * dataset_train->number_of_features);
+    double ***values =
+        (double ***)malloc(sizeof(double **) * dataset_train->number_of_features);
 
-  int *feat_id = (int *)malloc(sizeof(int) * dataset_train->number_of_features);
+    int *feat_id = (int *)malloc(sizeof(int) * dataset_train->number_of_features);
 
-  if (prob_feat_discrepancy == NULL || feat_id == NULL) {
-    fprintf(stderr,
-            "\nERROR: FeatureSelectionVector() in module FEMFeatureSelection, "
-            "cannot allocate vectors!\n");
-    exit(1);
-  }
+    if (prob_feat_discrepancy == NULL || feat_id == NULL) {
+        fprintf(stderr,
+                "\nERROR: FeatureSelectionVector() in module FEMFeatureSelection, "
+                "cannot allocate vectors!\n");
+        exit(1);
+    }
 
 #pragma omp for
-  for (feat = 0; feat < dataset_train->number_of_features; feat++) {
-    prob_feat_discrepancy[feat] = 0.0;
-    values[feat] = (double **)malloc(sizeof(double *) * n_samples);
-    feat_id[feat] = feat;
-    getMinMaxFeature(dataset_train, feat, &min[feat], &max[feat]);
-    for (sample = 0; sample < n_samples; sample++) {
-      values[feat][sample] =
-          (double *)malloc(sizeof(double) * dataset_train->number_of_classes);
+    for (feat = 0; feat < dataset_train->number_of_features; feat++) {
+        prob_feat_discrepancy[feat] = 0.0;
+        values[feat] = (double **)malloc(sizeof(double *) * n_samples);
+        feat_id[feat] = feat;
+        getMinMaxFeature(dataset_train, feat, &min[feat], &max[feat]);
+        for (sample = 0; sample < n_samples; sample++) {
+            values[feat][sample] =
+                (double *)malloc(sizeof(double) * dataset_train->number_of_classes);
+        }
     }
-  }
 
 #pragma omp parallel
-  {
-    int feat_n = dataset_train->number_of_features;
-    int samples_n = n_samples;
-    int class_n = dataset_train->number_of_classes;
+    {
+        int feat_n = dataset_train->number_of_features;
+        int samples_n = n_samples;
+        int class_n = dataset_train->number_of_classes;
 #pragma omp for ordered collapse(3)
-    for (feat = 0; feat < feat_n; feat++) {
-      for (sample = 0; sample < samples_n; sample++) {
-        for (class = 0; class < class_n; class ++) {
-          double value =
-              min[feat] + sample * ((max[feat] - min[feat]) / n_samples);
-          values[feat][sample][class] = probabilityByClassFeature(
-              dataset_train, class + 1, feat, value, min[feat], max[feat],
-              additional_parameters, FEMbasisF);
+        for (feat = 0; feat < feat_n; feat++) {
+            for (sample = 0; sample < samples_n; sample++) {
+                for (class = 0; class < class_n; class ++) {
+                    double value =
+                        min[feat] + sample * ((max[feat] - min[feat]) / n_samples);
+                    values[feat][sample][class] = probabilityByClassFeature(
+                            dataset_train, class + 1, feat, value, min[feat], max[feat],
+                            additional_parameters, FEMbasisF);
+                }
+            }
         }
-      }
     }
-  }
 
 
 #pragma omp for
-  for (i = 0; i < dataset_train->number_of_features; i++) // loop feature out
-  {
-    for (j = i + 1; j < dataset_train->number_of_features;
-         j++) // loop feature in
+    for (i = 0; i < dataset_train->number_of_features; i++) // loop feature out
     {
-      for (c1 = 0; c1 < dataset_train->number_of_classes;
-           c1++) // loop class out
-      {
-        for (c2 = 0; c2 < dataset_train->number_of_classes;
-             c2++) // loop class in
+        for (j = i + 1; j < dataset_train->number_of_features;
+                j++) // loop feature in
         {
-          for (k = 0; k < n_samples; k++) {
-            double mult = values[i][k][c1] * values[j][k][c2];
-            prob_feat_discrepancy[i] += mult;
-            prob_feat_discrepancy[j] += mult;
-          }
+            for (c1 = 0; c1 < dataset_train->number_of_classes;
+                    c1++) // loop class out
+            {
+                for (c2 = 0; c2 < dataset_train->number_of_classes;
+                        c2++) // loop class in
+                {
+                    for (k = 0; k < n_samples; k++) {
+                        double mult = values[i][k][c1] * values[j][k][c2];
+                        prob_feat_discrepancy[i] += mult;
+                        prob_feat_discrepancy[j] += mult;
+                    }
+                }
+            }
         }
-      }
     }
-  }
 
   bubleSortF(prob_feat_discrepancy, feat_id, dataset_train->number_of_features);
   for (i = 0; i < dataset_train->number_of_features; i++) {
