@@ -11,6 +11,7 @@ from sklearn.metrics import balanced_accuracy_score
 from sklearn.metrics import jaccard_score
 from sklearn.metrics import roc_auc_score
 from sklearn.metrics import matthews_corrcoef
+from sklearn.metrics import average_precision_score
 
 
 def generate_dict_data(fem:str, data:list, fix:str=None):
@@ -47,6 +48,7 @@ def generate_dict_data(fem:str, data:list, fix:str=None):
                  'accuracy':accuracy_score(df[0], df[1]),
                  'MCC': matthews_corrcoef(df[0], df[1]),
                  'balanced_accuracy':balanced_accuracy_score(df[0], df[1]),
+                 'precision_recall_score':average_precision_score(df[0], df[1]),
                  }
         # if dataset == 'tornontor':
              # print(dline)
