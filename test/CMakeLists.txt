@@ -76,11 +76,8 @@ add_custom_command(
 )
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/postrun_analysis.py ${CMAKE_CURRENT_BINARY_DIR}/postrun_analysis.py)
 
-add_custom_target(post_processing_script)
-
-add_custom_command(
-  TARGET post_processing_script POST_BUILD
-  DEPENDS post_processing_nslkdd post_processing_unswnb15 post_processing_tornontor
+add_custom_target(post_processing_script
+      DEPENDS post_processing_nslkdd post_processing_unswnb15 post_processing_tornontor
 )
 
 add_custom_target(post_processing_nslkdd

@@ -93,7 +93,7 @@ def generate_dict_data(fem:str, data:list, fix:str=None):
 
 
 
-def walk_through_testdir(directory:str, finaldata:list, cmdata:list = None):
+def walk_through_testdir(directory:str, finaldata:list, cmdata:list):
     os.chdir(directory)
     print(os.getcwd())
     dset, perc, fem = directory.split('_')[1:]
@@ -102,26 +102,19 @@ def walk_through_testdir(directory:str, finaldata:list, cmdata:list = None):
         generate_opf_pd(dset,perc,fem)
         generate_dict_data(fem, finaldata, 'fema')
         generate_dict_data(fem, finaldata, 'opf')
-        if cmdata:
-            generate_cm(fem, cmdata, 'fema')
-            generate_cm(fem, cmdata, 'opf')
     elif "unswnb15" == dset.lower():
         generate_fema_opf_pd(dset, perc,fem)
         generate_opf_pd(dset,perc,fem,'unsw-nb15')
         generate_dict_data(fem, finaldata, 'fema')
         generate_dict_data(fem, finaldata, 'opf')
-        if cmdata:
-            generate_cm(fem, cmdata, 'fema')
-            generate_cm(fem, cmdata, 'opf')
 
     else:
         generate_fema_opf_pd(dset, perc,fem)
         generate_opf_pd(dset,perc,fem)
         generate_dict_data(fem, finaldata)
-        if cmdata:
-            generate_cm(fem, cmdata, 'fema')
-            generate_cm(fem, cmdata, 'opf')
 
+    generate_cm(fem, cmdata, 'fema')
+    generate_cm(fem, cmdata, 'opf')
 
     os.chdir("..")
 
