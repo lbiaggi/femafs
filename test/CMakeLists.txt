@@ -1,26 +1,26 @@
 function(compile_configuration outfiles)
-    set(options)
-    set(oneValueArgs TARGET)
-    set(multiValueArgs OPTIONS DEPENDS)
+  set(options)
+  set(oneValueArgs TARGET)
+  set(multiValueArgs OPTIONS DEPENDS)
 
-    cmake_parse_arguments(_WRAP_CPP "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
+  cmake_parse_arguments(_WRAP_CPP "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
 
-    set(configuration_files ${_WRAP_CPP_UNPARSED_ARGUMENTS})
+  set(configuration_files ${_WRAP_CPP_UNPARSED_ARGUMENTS})
 
-    foreach(it ${configuration_files})
-        get_filename_component(it ${it} ABSOLUTE)
-        get_filename_component(_FILENAME_ ${it} NAME_WLE)
-        message("File to process ${_FILENAME_}")
+  foreach(it ${configuration_files})
+    get_filename_component(it ${it} ABSOLUTE)
+    get_filename_component(_FILENAME_ ${it} NAME_WLE)
+    message("File to process ${_FILENAME_}")
 
-        add_custom_command(
-            OUTPUT "${_FILENAME_}.cpp"
-            COMMAND confgen ${it}
-            WORKING_DIRECTORY ${CMAKE_BUILD_FOLDER}
-        )
+    add_custom_command(
+      OUTPUT "${_FILENAME_}.cpp"
+      COMMAND confgen ${it}
+      WORKING_DIRECTORY ${CMAKE_BUILD_FOLDER}
+    )
 
-        list(APPEND outfiles "${_FILENAME_}.cpp")
-    endforeach()
-    set(${outfiles} ${${outfiles}} PARENT_SCOPE)
+    list(APPEND outfiles "${_FILENAME_}.cpp")
+  endforeach()
+  set(${outfiles} ${${outfiles}} PARENT_SCOPE)
 endfunction()
 
 add_executable(
@@ -76,19 +76,23 @@ add_custom_command(
 )
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/postrun_analysis.py ${CMAKE_CURRENT_BINARY_DIR}/postrun_analysis.py)
 
-add_custom_target(post_processing_script
-      DEPENDS post_processing_nslkdd post_processing_unswnb15 post_processing_tornontor
+add_custom_target(
+  post_processing_script
+  DEPENDS post_processing_nslkdd post_processing_unswnb15 post_processing_tornontor
 )
 
-add_custom_target(post_processing_nslkdd
+add_custom_target(
+  post_processing_nslkdd
   COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/postrun_analysis.py
   -d "nslkdd"
 )
-add_custom_target(post_processing_tornontor
+add_custom_target(
+  post_processing_tornontor
   COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/postrun_analysis.py
   -d "tornontor"
 )
-add_custom_target(post_processing_unswnb15
+add_custom_target(
+  post_processing_unswnb15
   COMMAND ${Python3_EXECUTABLE} ${CMAKE_CURRENT_BINARY_DIR}/postrun_analysis.py
   -d "UNSWNB15"
 )
@@ -171,7 +175,7 @@ add_custom_target(
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_shep_nslkdd_50p.sh
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_shep_nslkdd_55p.sh
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_shep_nslkdd_60p.sh
-  )
+)
 add_custom_target(
   nslkdd
   DEPENDS nslkdd-gauss nslkdd-shep
@@ -213,7 +217,6 @@ add_custom_target(
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_gauss_tornontor_50p.sh
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_gauss_tornontor_55p.sh
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_gauss_tornontor_60p.sh
-
 )
 add_custom_target(
   tornontor-shep
@@ -228,7 +231,6 @@ add_custom_target(
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_shep_tornontor_50p.sh
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_shep_tornontor_55p.sh
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_shep_tornontor_60p.sh
-
 )
 add_custom_target(
   tornontor
@@ -261,7 +263,7 @@ configure_file(${CMAKE_CURRENT_SOURCE_DIR}/runfs_shep_unswnb15_60p.sh ${CMAKE_CU
 
 
 add_custom_target(
- unswnb15-gauss
+  unswnb15-gauss
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_gauss_unswnb15_10p.sh
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_gauss_unswnb15_15p.sh
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_gauss_unswnb15_20p.sh
@@ -275,7 +277,7 @@ add_custom_target(
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_gauss_unswnb15_60p.sh
 )
 add_custom_target(
- unswnb15-shep
+  unswnb15-shep
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_shep_unswnb15_10p.sh
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_shep_unswnb15_15p.sh
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_shep_unswnb15_20p.sh
@@ -292,6 +294,34 @@ add_custom_target(
 add_custom_target(
   unswnb15
   DEPENDS unswnb15-gauss unswnb15-shep
+)
+
+#CICIDS2017
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/runfs_shep_cicids2017_10p.sh ${CMAKE_CURRENT_BINARY_DIR}/runfs_shep_cicids2017_10p.sh)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/runfs_shep_cicids2017_15p.sh ${CMAKE_CURRENT_BINARY_DIR}/runfs_shep_cicids2017_15p.sh)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/runfs_shep_cicids2017_20p.sh ${CMAKE_CURRENT_BINARY_DIR}/runfs_shep_cicids2017_20p.sh)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/runfs_shep_cicids2017_25p.sh ${CMAKE_CURRENT_BINARY_DIR}/runfs_shep_cicids2017_25p.sh)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/runfs_shep_cicids2017_30p.sh ${CMAKE_CURRENT_BINARY_DIR}/runfs_shep_cicids2017_30p.sh)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/runfs_shep_cicids2017_35p.sh ${CMAKE_CURRENT_BINARY_DIR}/runfs_shep_cicids2017_35p.sh)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/runfs_shep_cicids2017_40p.sh ${CMAKE_CURRENT_BINARY_DIR}/runfs_shep_cicids2017_40p.sh)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/runfs_shep_cicids2017_45p.sh ${CMAKE_CURRENT_BINARY_DIR}/runfs_shep_cicids2017_45p.sh)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/runfs_shep_cicids2017_50p.sh ${CMAKE_CURRENT_BINARY_DIR}/runfs_shep_cicids2017_50p.sh)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/runfs_shep_cicids2017_55p.sh ${CMAKE_CURRENT_BINARY_DIR}/runfs_shep_cicids2017_55p.sh)
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/runfs_shep_cicids2017_60p.sh ${CMAKE_CURRENT_BINARY_DIR}/runfs_shep_cicids2017_60p.sh)
+
+add_custom_target(
+  cicids2017-shep
+  COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_gauss_cicids2017_10p.sh
+  COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_gauss_cicids2017_15p.sh
+  COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_gauss_cicids2017_20p.sh
+  COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_gauss_cicids2017_25p.sh
+  COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_gauss_cicids2017_30p.sh
+  COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_gauss_cicids2017_35p.sh
+  COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_gauss_cicids2017_40p.sh
+  COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_gauss_cicids2017_45p.sh
+  COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_gauss_cicids2017_50p.sh
+  COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_gauss_cicids2017_55p.sh
+  COMMAND ${CMAKE_CURRENT_BINARY_DIR}/runfs_gauss_cicids2017_60p.sh
 )
 
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/speedtest.sh ${CMAKE_CURRENT_BINARY_DIR}/speedtest.sh)

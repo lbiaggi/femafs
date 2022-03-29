@@ -9,7 +9,7 @@ pd.options.mode.use_inf_as_na = True
 def normalize(df, log1p=False, grayNorm=False):
     result = df.copy()
     result.fillna(0)
-    if grayNorm: 
+    if grayNorm:
         result[result.columns[1:]] = result[result.columns[1:]].apply(lambda x: ((x-x.min())/(x.max() - x.min())) * 255)
     if log1p:
         result[result.columns[1:]] = result[result.columns[1:]].apply(lambda x: np.log1p(x - x.min() + 1))
@@ -65,7 +65,7 @@ def train_test_files(train, test, name, _type, cls):
     os.remove(TRAIN)
     os.remove(TEST)
 
-def generate_file(df, _type, name, create_train_test=False, cls=None, _test_size=0.25, low_variance_remove=False,
+def generate_file(df, _type, name, create_train_test=False, cls=None, _test_size=0.30, low_variance_remove=False,
                   threshold_n = 0.95, log1p=False):
     df_data = df.copy()
     df_data.reset_index(inplace=True, drop=True)
@@ -110,4 +110,3 @@ def generate_file(df, _type, name, create_train_test=False, cls=None, _test_size
         print(f"Arquivo sem split {FILE} salvado com {cls} classes, {samples} amostras e {features-1} caracteristicas")
     else:
         print(f"Arquivo {FILE} salvado com {cls} classes, {samples} amostras e {features-1} caracteristicas")
-
