@@ -6,9 +6,11 @@ from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from sklearn.feature_selection import VarianceThreshold
 pd.options.mode.use_inf_as_na = True
 
-def normalize(df, log1p=False):
+def normalize(df, log1p=False, grayNorm=False):
     result = df.copy()
     result.fillna(0)
+    if grayNorm: 
+        result[result.columns[1:]] = result[result.columns[1:]].apply(lambda x: ((x-x.min())/(x.max() - x.min())) * 255)
     if log1p:
         result[result.columns[1:]] = result[result.columns[1:]].apply(lambda x: np.log1p(x - x.min() + 1))
 
